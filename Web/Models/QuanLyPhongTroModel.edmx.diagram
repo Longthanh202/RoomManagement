@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="d51169e086414a7891840aadf2d2071b" Name="Diagram1">
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.BanGiaoThietBi" Width="1.5" PointX="20.25" PointY="47.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.BangGiaDichVu" Width="1.5" PointX="5.25" PointY="44.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.CuDan" Width="1.5" PointX="12" PointY="34.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ChiPhiPhong" Width="1.5" PointX="12" PointY="51.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ChiPhiSuaChua" Width="1.5" PointX="16.5" PointY="34.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ChiSoDongHo" Width="1.5" PointX="17.25" PointY="38.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ChiTietHoaDon" Width="1.5" PointX="17.25" PointY="53.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ChuKyHopDong" Width="1.5" PointX="20.25" PointY="50.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ChuTro" Width="1.5" PointX="0.75" PointY="46.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.DangKyKhach" Width="1.5" PointX="12" PointY="46.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.DanhMucThuChi" Width="1.5" PointX="6" PointY="34.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.DayTro" Width="1.5" PointX="5.25" PointY="47.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.DichVu" Width="1.5" PointX="3" PointY="50.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.DichVuPhong" Width="1.5" PointX="15" PointY="47.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.DieuChinhHoaDon" Width="1.5" PointX="20.25" PointY="54.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.DongHo" Width="1.5" PointX="15" PointY="43.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.GiaoDichThuChi" Width="1.5" PointX="8.25" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.HoaDon" Width="1.5" PointX="15" PointY="51.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.HopDong" Width="1.5" PointX="18" PointY="46.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.HopDongThanhVien" Width="1.5" PointX="23.25" PointY="47.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.KyTinhTien" Width="1.5" PointX="5.25" PointY="56.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.KhuTro" Width="1.5" PointX="3" PointY="45.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.LichSuCuTru" Width="1.5" PointX="23.25" PointY="43.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.LichSuKhach" Width="1.5" PointX="20.25" PointY="43.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.LichSuSuaChua" Width="1.5" PointX="19.5" PointY="38.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.LoaiThietBi" Width="1.5" PointX="9.75" PointY="38.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.LoaiXe" Width="1.5" PointX="13.5" PointY="30.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.NguoiNhanThongBao" Width="1.5" PointX="7.5" PointY="38.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.NhanVien" Width="1.5" PointX="3" PointY="39" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.NhatKyHeThong" Width="1.5" PointX="3" PointY="35.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.PhanBoThanhToan" Width="1.5" PointX="17.25" PointY="58.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.PhanCongNhanVien" Width="1.5" PointX="5.25" PointY="51.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.PhanCongSuaChua" Width="1.5" PointX="19.5" PointY="35" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.Phong" Width="1.5" PointX="9.75" PointY="46.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.PhuLucHopDong" Width="1.5" PointX="20.25" PointY="60.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.Quyen" Width="1.5" PointX="0.75" PointY="7.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.TaiKhoan" Width="1.5" PointX="0.75" PointY="39.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.TaiKhoanVaiTro" Width="1.5" PointX="3" PointY="22.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.TaiLieuHopDong" Width="1.5" PointX="20.25" PointY="64.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.Tang" Width="1.5" PointX="7.5" PointY="48.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ThanhToan" Width="1.5" PointX="15" PointY="57.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ThietBiPhong" Width="1.5" PointX="12" PointY="41.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.ThongBao" Width="1.5" PointX="5.25" PointY="39.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.VaiTro" Width="1.5" PointX="0.75" PointY="2.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.VaiTroQuyen" Width="1.5" PointX="3" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.Xe" Width="1.5" PointX="15.75" PointY="29.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.XePhong" Width="1.5" PointX="18" PointY="42.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QuanLyPhongTroModel.YeuCauSuaChua" Width="1.5" PointX="14.25" PointY="38.375" IsExpanded="true" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_BGTTB_HopDong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_BGTTB_ThietBi" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_BGDV_DichVu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_BGDV_KhuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CKHD_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CuDan_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DKK_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HDTV_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HopDong_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_LSCT_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_Xe_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_YCSC_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CPP_ChiSo" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CPP_DichVu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CPP_Ky" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CPP_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CPSC_YeuCau" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CSDH_DongHo" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CSDH_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CTHD_DichVu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CTHD_HoaDon" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_CKHD_HopDong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_KhuTro_ChuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_NhanVien_ChuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DKK_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_LSK_DKK" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_GDTC_DanhMuc" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DayTro_KhuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_Tang_DayTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DongHo_DichVu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DVP_DichVu" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DVP_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DCHD_HoaDon" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DCHD_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_DongHo_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_GDTC_KhuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_GDTC_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HoaDon_HopDong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HoaDon_Ky" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HoaDon_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_PBTT_HoaDon" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HDTV_HopDong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HopDong_NguoiTao" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_HopDong_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_LSCT_HopDong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_PLHD_HopDong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_TLHD_HopDong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_KTT_KhuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_PCNV_KhuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_ThongBao_KhuTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_LSCT_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_LSK_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_LSSC_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_LSSC_YeuCau" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_TBP_Loai" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_Xe_LoaiXe" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_NNTB_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_NNTB_ThongBao" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_NhanVien_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_PCNV_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_PCSC_NhanVien" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_NKHT_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_PBTT_ThanhToan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_PCSC_YeuCau" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_Phong_Tang" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_TBP_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_XP_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_YCSC_Phong" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_VTQ_Quyen" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_TKVT_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_ThanhToan_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_ThongBao_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_TKVT_VaiTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_YCSC_ThietBi" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_VTQ_VaiTro" ManuallyRouted="false" />
+        <AssociationConnector Association="QuanLyPhongTroModel.FK_XP_Xe" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
