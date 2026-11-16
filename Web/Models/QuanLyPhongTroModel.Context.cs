@@ -13,10 +13,10 @@ namespace Web.Models
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class QuanLyPhongTroEntities1 : DbContext
+    public partial class QuanLyPhongTroEntities : DbContext
     {
-        public QuanLyPhongTroEntities1()
-            : base("name=QuanLyPhongTroEntities1")
+        public QuanLyPhongTroEntities()
+            : base("name=QuanLyPhongTroEntities")
         {
         }
     

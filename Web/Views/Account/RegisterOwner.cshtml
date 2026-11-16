@@ -1,0 +1,102 @@
+﻿@model Web.Models.ViewModel.RegisterOwnerViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Đăng ký chủ trọ | RoomCare";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c35" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
+</head>
+<body class="rc-auth-page">
+    <main class="rc-auth-shell">
+        <section class="rc-auth-story">
+            <a class="rc-brand rc-brand-light" href="@Url.Action("Login", "Account")">
+                <span class="rc-brand-mark" aria-hidden="true">R</span>
+                <span>Room<span>Care</span></span>
+            </a>
+            <div class="rc-story-copy">
+                <span class="rc-eyebrow">QUẢN LÝ NHÀ TRỌ, NHẸ NHÀNG HƠN</span>
+                <h1>Chăm chút từng căn phòng.<br />An tâm mọi vận hành.</h1>
+                <p>Tạo không gian quản lý rõ ràng cho khu trọ, nhân viên và cư dân của bạn.</p>
+                <div class="rc-story-points">
+                    <span><i aria-hidden="true">✓</i> Quản lý nhiều khu trọ trên một nền tảng</span>
+                    <span><i aria-hidden="true">✓</i> Theo dõi dãy, tầng và tình trạng phòng</span>
+                    <span><i aria-hidden="true">✓</i> Tạo tài khoản cho đội ngũ và cư dân</span>
+                </div>
+            </div>
+            <div class="rc-story-footer">RoomCare · Chăm sóc nơi an cư</div>
+        </section>
+
+        <section class="rc-auth-content">
+            <div class="rc-auth-card">
+                <div class="rc-mobile-brand">
+                    <a class="rc-brand" href="@Url.Action("Login", "Account")">
+                        <span class="rc-brand-mark" aria-hidden="true">R</span>
+                        <span>Room<span>Care</span></span>
+                    </a>
+                </div>
+                <div class="rc-form-heading">
+                    <span class="rc-eyebrow">BẮT ĐẦU MIỄN PHÍ</span>
+                    <h2>Tạo tài khoản chủ trọ</h2>
+                    <p>Đăng ký để bắt đầu quản lý nhà trọ của bạn.</p>
+                </div>
+
+                @using (Html.BeginRouteForm("RegisterOwner", new { }, FormMethod.Post, new { @class = "rc-form", autocomplete = "on" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "rc-validation-summary" })
+
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.HoTen)
+                        @Html.TextBoxFor(x => x.HoTen, new { @class = "form-control", autocomplete = "name", placeholder = "Nguyễn Văn An", autofocus = "autofocus" })
+                        @Html.ValidationMessageFor(x => x.HoTen, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.TenDangNhap)
+                        @Html.TextBoxFor(x => x.TenDangNhap, new { @class = "form-control", autocomplete = "username", placeholder = "Tên đăng nhập của bạn" })
+                        @Html.ValidationMessageFor(x => x.TenDangNhap, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.Email)
+                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control", type = "email", autocomplete = "email", placeholder = "ban@email.com" })
+                        @Html.ValidationMessageFor(x => x.Email, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.SoDienThoai)
+                        @Html.TextBoxFor(x => x.SoDienThoai, new { @class = "form-control", type = "tel", autocomplete = "tel", placeholder = "Số điện thoại liên hệ" })
+                        @Html.ValidationMessageFor(x => x.SoDienThoai, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.DiaChi)
+                        @Html.TextBoxFor(x => x.DiaChi, new { @class = "form-control", autocomplete = "street-address", placeholder = "Địa chỉ (không bắt buộc)" })
+                        @Html.ValidationMessageFor(x => x.DiaChi, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="rc-form-row">
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.MatKhau)
+                            @Html.PasswordFor(x => x.MatKhau, new { @class = "form-control", autocomplete = "new-password", placeholder = "Tối thiểu 10 ký tự" })
+                            @Html.ValidationMessageFor(x => x.MatKhau, "", new { @class = "field-validation-error" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(x => x.XacNhanMatKhau)
+                            @Html.PasswordFor(x => x.XacNhanMatKhau, new { @class = "form-control", autocomplete = "new-password", placeholder = "Nhập lại mật khẩu" })
+                            @Html.ValidationMessageFor(x => x.XacNhanMatKhau, "", new { @class = "field-validation-error" })
+                        </div>
+                    </div>
+                    <button class="btn rc-btn-primary rc-btn-block" type="submit">Tạo tài khoản <span aria-hidden="true">→</span></button>
+                    <p class="rc-auth-switch">Đã có tài khoản? <a href="@Url.Action("Login", "Account")">Đăng nhập</a></p>
+                }
+            </div>
+        </section>
+    </main>
+    <script src="@Url.Content("~/Scripts/jquery-3.4.1.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")"></script>
+</body>
+</html>

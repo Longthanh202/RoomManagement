@@ -1,0 +1,73 @@
+﻿@model Web.Models.ViewModel.CompleteOwnerProfileViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Hoàn thiện hồ sơ | RoomCare";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c35" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
+</head>
+<body class="rc-auth-page">
+    <main class="rc-auth-shell">
+        <section class="rc-auth-story">
+            <a class="rc-brand rc-brand-light" href="@Url.Action("Index", "Owner")">
+                <span class="rc-brand-mark" aria-hidden="true">R</span>
+                <span>Room<span>Care</span></span>
+            </a>
+            <div class="rc-story-copy">
+                <span class="rc-eyebrow">CHỈ CÒN MỘT BƯỚC</span>
+                <h1>Hoàn thiện hồ sơ<br />để bắt đầu quản lý.</h1>
+                <p>RoomCare cần thông tin chủ trọ để liên kết chính xác tài khoản với các khu trọ của bạn.</p>
+            </div>
+            <div class="rc-story-footer">RoomCare · Chăm sóc nơi an cư</div>
+        </section>
+        <section class="rc-auth-content">
+            <div class="rc-auth-card">
+                <div class="rc-mobile-brand">
+                    <a class="rc-brand" href="@Url.Action("Index", "Owner")">
+                        <span class="rc-brand-mark" aria-hidden="true">R</span>
+                        <span>Room<span>Care</span></span>
+                    </a>
+                </div>
+                <div class="rc-form-heading">
+                    <span class="rc-eyebrow">HỒ SƠ CHỦ TRỌ</span>
+                    <h2>Hoàn thiện thông tin</h2>
+                    <p>Bổ sung thông tin để thiết lập không gian quản lý của bạn.</p>
+                </div>
+                @using (Html.BeginRouteForm("CompleteOwnerProfile", new { }, FormMethod.Post, new { @class = "rc-form", autocomplete = "on" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "rc-validation-summary" })
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.HoTen)
+                        @Html.TextBoxFor(x => x.HoTen, new { @class = "form-control", autocomplete = "name", placeholder = "Họ và tên chủ trọ", autofocus = "autofocus" })
+                        @Html.ValidationMessageFor(x => x.HoTen, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.Email)
+                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control", type = "email", autocomplete = "email", placeholder = "ban@email.com" })
+                        @Html.ValidationMessageFor(x => x.Email, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.SoDienThoai)
+                        @Html.TextBoxFor(x => x.SoDienThoai, new { @class = "form-control", type = "tel", autocomplete = "tel", placeholder = "Số điện thoại liên hệ" })
+                        @Html.ValidationMessageFor(x => x.SoDienThoai, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.DiaChi)
+                        @Html.TextBoxFor(x => x.DiaChi, new { @class = "form-control", autocomplete = "street-address", placeholder = "Địa chỉ (không bắt buộc)" })
+                        @Html.ValidationMessageFor(x => x.DiaChi, "", new { @class = "field-validation-error" })
+                    </div>
+                    <button class="btn rc-btn-primary rc-btn-block" type="submit">Lưu hồ sơ <span aria-hidden="true">→</span></button>
+                }
+            </div>
+        </section>
+    </main>
+</body>
+</html>
