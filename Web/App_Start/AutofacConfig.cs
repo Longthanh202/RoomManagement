@@ -7,9 +7,13 @@ using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using Web.Models;
+using Web.Repositories.EmployeeRepository;
 using Web.Repositories.OwnerRepository;
+using Web.Repositories.ResidentRepository;
 using Web.Repositories.TaiKhoanRepository;
+using Web.Services.EmployeeService;
 using Web.Services.OwnerService;
+using Web.Services.ResidentService;
 using Web.Services.TaiKhoanService;
 
 namespace Web.App_Start
@@ -39,6 +43,14 @@ namespace Web.App_Start
                 .As<IOwnerRepository>()
                 .InstancePerRequest();
 
+            builder.RegisterType<ResidentRepository>()
+                .As<IResidentRepository>()
+                .InstancePerRequest();
+
+            builder.RegisterType<EmployeeRepository>()
+                .As<IEmployeeRepository>()
+                .InstancePerRequest();
+
             // Đăng ký Service
             builder.RegisterType<TaiKhoanService>()
                 .As<ITaiKhoanService>()
@@ -46,6 +58,14 @@ namespace Web.App_Start
 
             builder.RegisterType<OwnerService>()
                 .As<IOwnerService>()
+                .InstancePerRequest();
+
+            builder.RegisterType<ResidentService>()
+                .As<IResidentService>()
+                .InstancePerRequest();
+
+            builder.RegisterType<EmployeeService>()
+                .As<IEmployeeService>()
                 .InstancePerRequest();
 
             // Build Container

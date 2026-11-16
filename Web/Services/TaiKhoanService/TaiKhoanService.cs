@@ -176,5 +176,11 @@ namespace Web.Services.TaiKhoanService
 
             return null;
         }
+
+        public bool MarkNotificationRead(string username, long recipientId)
+        {
+            return !string.IsNullOrWhiteSpace(username) &&
+                _repository.MarkNotificationRead(username.Trim(), recipientId);
+        }
     }
 }

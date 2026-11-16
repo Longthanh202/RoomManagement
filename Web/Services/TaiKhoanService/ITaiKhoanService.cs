@@ -23,5 +23,7 @@ namespace Web.Services.TaiKhoanService
         bool HasActiveOwnerProfile(string email);
 
         string CompleteOwnerProfile(string username, CompleteOwnerProfileViewModel model);
+
+        bool MarkNotificationRead(string username, long recipientId);
     }
 }

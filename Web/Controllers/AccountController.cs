@@ -92,9 +92,14 @@ namespace Web.Controllers
                 return Redirect(model.ReturnUrl);
             }
 
-            return account.LoaiTaiKhoan == "ChuTro"
-                ? (ActionResult)RedirectToAction("Index", "Owner")
-                : RedirectToAction("Portal");
+            if (account.LoaiTaiKhoan == "ChuTro")
+            {
+                return RedirectToAction("Index", "Owner");
+            }
+
+            return account.LoaiTaiKhoan == "NhanVien"
+                ? (ActionResult)RedirectToAction("Index", "Employee")
+                : RedirectToAction("Index", "Resident");
         }
 
         [Authorize]
@@ -116,7 +121,9 @@ namespace Web.Controllers
                 return RedirectToAction("Login");
             }
 
-            return View(model);
+            return model.LoaiTaiKhoan == "NhanVien"
+                ? (ActionResult)RedirectToAction("Index", "Employee")
+                : RedirectToAction("Index", "Resident");
         }
 
         [Authorize]
@@ -191,6 +198,33 @@ namespace Web.Controllers
             return RedirectToAction("Login");
         }
 
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult MarkMemberNotificationRead(long id)
+        {
+            var portal = _taiKhoanService.GetPortal(User.Identity.Name);
+            if (portal == null)
+            {
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login");
+            }
+
+            if (!_taiKhoanService.MarkNotificationRead(User.Identity.Name, id))
+            {
+                TempData["Error"] = "Không tìm thấy thông báo trong tài khoản này.";
+            }
+
+            if (portal.LoaiTaiKhoan == "NhanVien")
+            {
+                return RedirectToAction("Index", "Employee");
+            }
+
+            return portal.LoaiTaiKhoan == "CuDan"
+                ? (ActionResult)RedirectToAction("Index", "Resident")
+                : RedirectToAction("Index", "Owner");
+        }
+
         private ActionResult RedirectAuthenticatedAccount()
         {
             var account = _taiKhoanService.GetActiveOwnerAccount(User.Identity.Name);
@@ -201,9 +235,12 @@ namespace Web.Controllers
                     : RedirectToAction("Index", "Owner");
             }
 
-            if (_taiKhoanService.GetPortal(User.Identity.Name) != null)
+            var portal = _taiKhoanService.GetPortal(User.Identity.Name);
+            if (portal != null)
             {
-                return RedirectToAction("Portal");
+                return portal.LoaiTaiKhoan == "NhanVien"
+                    ? (ActionResult)RedirectToAction("Index", "Employee")
+                    : RedirectToAction("Index", "Resident");
             }
 
             FormsAuthentication.SignOut();

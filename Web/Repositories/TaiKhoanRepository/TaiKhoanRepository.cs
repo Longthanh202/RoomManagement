@@ -198,5 +198,22 @@ namespace Web.Repositories.TaiKhoanRepository
                 transaction.Commit();
             }
         }
+
+        public bool MarkNotificationRead(string username, long recipientId)
+        {
+            var recipient = _db.NguoiNhanThongBao.FirstOrDefault(x =>
+                x.Id == recipientId &&
+                x.TaiKhoan.TenDangNhap == username &&
+                x.TaiKhoan.TrangThai);
+            if (recipient == null)
+            {
+                return false;
+            }
+
+            recipient.DaDoc = true;
+            recipient.ThoiGianDoc = System.DateTime.Now;
+            _db.SaveChanges();
+            return true;
+        }
     }
 }

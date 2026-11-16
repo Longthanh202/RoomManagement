@@ -1,0 +1,279 @@
+﻿@using System.Linq
+@using System.Collections.Generic
+@model Web.Models.ViewModel.EmployeeDashboardViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Không gian nhân viên | RoomCare";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c35" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
+</head>
+<body class="rc-dashboard rc-member-app">
+    <header class="rc-app-header rc-member-header">
+        <a class="rc-brand" href="@Url.Action("Index", "Employee")">
+            <span class="rc-brand-mark" aria-hidden="true">R</span>
+            <span>Room<span>Care</span></span>
+        </a>
+        <nav class="rc-member-nav" aria-label="Điều hướng nhân viên">
+            <a href="#overview">Tổng quan</a>
+            @if (Model.CoQuyenXuLySuaChua) { <a href="#repairs">Sửa chữa</a> }
+            @if (Model.CoQuyenXuLyKhach) { <a href="#guests">Khách</a> }
+            @if (Model.CoQuyenXemCuDan) { <a href="#residents">Cư dân</a> }
+            @if (Model.CoQuyenXemHoaDon) { <a href="#invoices">Hóa đơn</a> }
+        </nav>
+        <div class="rc-header-actions">
+            <a class="rc-notification-button" href="#notifications" aria-label="Thông báo">
+                ♧
+                @if (Model.SoThongBaoChuaDoc > 0)
+                {
+                    <span class="rc-notification-badge">@Model.SoThongBaoChuaDoc</span>
+                }
+            </a>
+            <span class="rc-user-avatar" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.HoTen) ? "N" : Model.HoTen.Substring(0, 1).ToUpper())</span>
+            <span class="rc-user-name">@Model.HoTen</span>
+            @using (Html.BeginRouteForm("Logout", new { }, FormMethod.Post, new { @class = "rc-logout-form" }))
+            {
+                @Html.AntiForgeryToken()
+                <button class="rc-logout" type="submit">Đăng xuất</button>
+            }
+        </div>
+    </header>
+    <main class="rc-member-main">
+        @if (TempData["Success"] != null)
+        {
+            <div class="rc-alert rc-alert-success" role="status">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="rc-alert rc-alert-error" role="alert">@TempData["Error"]</div>
+        }
+        @if (Model.YeuCauDoiMatKhau)
+        {
+            <div class="rc-alert rc-alert-error" role="status">Tài khoản đang sử dụng mật khẩu tạm thời. Vui lòng liên hệ chủ trọ để được hỗ trợ đổi mật khẩu.</div>
+        }
+
+        <section class="rc-member-welcome" id="overview">
+            <div>
+                <span class="rc-eyebrow">KHÔNG GIAN NHÂN VIÊN</span>
+                <h1>Xin chào, @Model.HoTen</h1>
+                <p>@Model.ChucVu</p>
+            </div>
+            <div class="rc-member-area-list">
+                <span class="rc-stat-icon rc-icon-blue" aria-hidden="true">⌂</span>
+                <div><strong>Khu trọ được phân công</strong><span>@(Model.KhuTro.Count == 0 ? "Chưa có khu trọ đang phụ trách" : string.Join(" · ", Model.KhuTro.Select(x => x.TenKhuTro)))</span></div>
+            </div>
+        </section>
+
+        <div class="rc-member-stats">
+            <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-green">⌂</span><div><span class="rc-stat-label">Khu trọ</span><strong>@Model.KhuTro.Count</strong></div><span class="rc-stat-note">được phân công</span></article>
+            @if (Model.CoQuyenXuLySuaChua) { <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-orange">⚒</span><div><span class="rc-stat-label">Yêu cầu sửa chữa</span><strong>@Model.YeuCauSuaChua.Count</strong></div><span class="rc-stat-note">đang chờ xử lý</span></article> }
+            @if (Model.CoQuyenXuLyKhach) { <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-purple">♧</span><div><span class="rc-stat-label">Đăng ký khách</span><strong>@Model.DangKyKhach.Count</strong></div><span class="rc-stat-note">trong khu phụ trách</span></article> }
+            @if (Model.CoQuyenXemHoaDon) { <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-blue">▤</span><div><span class="rc-stat-label">Hóa đơn</span><strong>@Model.HoaDon.Count</strong></div><span class="rc-stat-note">trong khu phụ trách</span></article> }
+        </div>
+
+        @if (Model.CoQuyenXuLySuaChua)
+        {
+            <section class="rc-surface rc-member-section" id="repairs">
+                <div class="rc-section-heading"><div><span class="rc-eyebrow">KỸ THUẬT</span><h2>Yêu cầu sửa chữa</h2><p>Chỉ hiển thị yêu cầu ở khu trọ đang được phân công.</p></div></div>
+                @if (Model.YeuCauSuaChua.Count == 0)
+                {
+                    <div class="rc-empty-state"><strong>Không có yêu cầu đang chờ</strong><span>Yêu cầu mới sẽ được hiển thị tại đây.</span></div>
+                }
+                else
+                {
+                    <div class="rc-member-list">
+                        @foreach (var request in Model.YeuCauSuaChua)
+                        {
+                            var repairOptions = new Dictionary<string, string>();
+                            if (request.TrangThai == "ChoTiepNhan")
+                            {
+                                repairOptions.Add("DangXuLy", "Bắt đầu xử lý");
+                                repairOptions.Add("DaHuy", "Hủy yêu cầu");
+                            }
+                            else if (request.TrangThai == "DangXuLy")
+                            {
+                                repairOptions.Add("ChoVatTu", "Chờ vật tư");
+                                repairOptions.Add("HoanThanh", "Hoàn thành");
+                            }
+                            else if (request.TrangThai == "ChoVatTu")
+                            {
+                                repairOptions.Add("DangXuLy", "Tiếp tục xử lý");
+                                repairOptions.Add("HoanThanh", "Hoàn thành");
+                            }
+                            <article class="rc-member-record">
+                                <div class="rc-member-record-heading"><div><strong>@request.TieuDe</strong><span>@request.Phong.Tang.DayTro.KhuTro.TenKhuTro · Phòng @request.Phong.MaPhong · @request.NgayTao.ToString("dd/MM/yyyy HH:mm")</span></div><span class="rc-status-pill is-pending">@request.TrangThai</span></div>
+                                <p>@request.NoiDung</p>
+                                <p class="rc-form-hint">Người gửi: @request.CuDan.HoTen · Ưu tiên: @request.MucDoUuTien</p>
+                                @if (repairOptions.Count > 0)
+                                {
+                                    using (Html.BeginRouteForm("EmployeeUpdateRepair", new { }, FormMethod.Post, new { @class = "rc-member-update-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="YeuCauSuaChuaId" value="@request.Id" />
+                                        <select name="TrangThai" class="form-control" aria-label="Trạng thái mới">
+                                            @foreach (var option in repairOptions)
+                                            {
+                                                <option value="@option.Key">@option.Value</option>
+                                            }
+                                        </select>
+                                        <input name="NoiDung" class="form-control" maxlength="1000" placeholder="Ghi chú tiến độ (không bắt buộc)" />
+                                        <button class="btn rc-btn-primary" type="submit">Cập nhật</button>
+                                    }
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        @if (Model.CoQuyenXuLyKhach)
+        {
+            <section class="rc-surface rc-member-section" id="guests">
+                <div class="rc-section-heading"><div><span class="rc-eyebrow">LỄ TÂN</span><h2>Đăng ký khách</h2><p>Xác nhận đăng ký và ghi nhận khách đến/rời đi.</p></div></div>
+                @if (Model.DangKyKhach.Count == 0)
+                {
+                    <div class="rc-empty-state"><strong>Chưa có đăng ký khách</strong><span>Đăng ký mới từ cư dân sẽ xuất hiện tại đây.</span></div>
+                }
+                else
+                {
+                    <div class="rc-member-list">
+                        @foreach (var guest in Model.DangKyKhach)
+                        {
+                            var guestOptions = new Dictionary<string, string>();
+                            if (guest.TrangThai == "ChoDuyet")
+                            {
+                                guestOptions.Add("DaDuyet", "Duyệt");
+                                guestOptions.Add("TuChoi", "Từ chối");
+                            }
+                            else if (guest.TrangThai == "DaDuyet")
+                            {
+                                guestOptions.Add("DaDen", "Ghi nhận khách đến");
+                                guestOptions.Add("DaHuy", "Hủy đăng ký");
+                            }
+                            else if (guest.TrangThai == "DaDen")
+                            {
+                                guestOptions.Add("DaVe", "Ghi nhận khách rời đi");
+                            }
+                            <article class="rc-member-record">
+                                <div class="rc-member-record-heading"><div><strong>@guest.TenKhach · @guest.SoLuongKhach khách</strong><span>@guest.Phong.Tang.DayTro.KhuTro.TenKhuTro · Phòng @guest.Phong.MaPhong · cư dân @guest.CuDan.HoTen</span></div><span class="rc-status-pill is-pending">@guest.TrangThai</span></div>
+                                <p>Dự kiến: @guest.ThoiGianDuKienDen.GetValueOrDefault().ToString("dd/MM/yyyy HH:mm") – @guest.ThoiGianDuKienVe.GetValueOrDefault().ToString("dd/MM/yyyy HH:mm")</p>
+                                @if (guestOptions.Count > 0)
+                                {
+                                    using (Html.BeginRouteForm("EmployeeUpdateGuest", new { }, FormMethod.Post, new { @class = "rc-member-update-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="DangKyKhachId" value="@guest.Id" />
+                                        <select name="TrangThai" class="form-control" aria-label="Cập nhật đăng ký khách">
+                                            @foreach (var option in guestOptions)
+                                            {
+                                                <option value="@option.Key">@option.Value</option>
+                                            }
+                                        </select>
+                                        <input name="GhiChu" class="form-control" maxlength="500" placeholder="Ghi chú (không bắt buộc)" />
+                                        <button class="btn rc-btn-secondary" type="submit">Lưu</button>
+                                    }
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        @if (Model.CoQuyenXemCuDan)
+        {
+            <section class="rc-surface rc-member-section" id="residents">
+                <div class="rc-section-heading"><div><span class="rc-eyebrow">CƯ TRÚ</span><h2>Cư dân đang ở</h2><p>Danh sách hợp đồng hiện hành trong khu trọ được phân công.</p></div></div>
+                @if (Model.HopDong.Count == 0)
+                {
+                    <div class="rc-empty-state"><strong>Chưa có cư dân đang ở</strong><span>Hợp đồng đang hiệu lực sẽ xuất hiện tại đây.</span></div>
+                }
+                else
+                {
+                    <div class="rc-member-table-wrap"><table class="rc-member-table"><thead><tr><th>Khu trọ / phòng</th><th>Người đại diện</th><th>Thời hạn hợp đồng</th><th>Thành viên đang ở</th></tr></thead><tbody>
+                    @foreach (var contract in Model.HopDong)
+                    {
+                        var occupants = contract.HopDongThanhVien
+                            .Where(x => x.TrangThai && x.CuDan != null &&
+                                x.NgayBatDau <= DateTime.Today &&
+                                (!x.NgayKetThuc.HasValue || x.NgayKetThuc >= DateTime.Today))
+                            .Select(x => x.CuDan.HoTen)
+                            .Where(x => !string.IsNullOrWhiteSpace(x))
+                            .Distinct()
+                            .ToList();
+                        if (!occupants.Contains(contract.CuDan.HoTen))
+                        {
+                            occupants.Insert(0, contract.CuDan.HoTen);
+                        }
+                        <tr><td>@contract.Phong.Tang.DayTro.KhuTro.TenKhuTro · @contract.Phong.MaPhong</td><td>@contract.CuDan.HoTen</td><td>@contract.NgayBatDau.ToString("dd/MM/yyyy") – @contract.NgayKetThuc.ToString("dd/MM/yyyy")</td><td>@string.Join(", ", occupants)</td></tr>
+                    }
+                    </tbody></table></div>
+                }
+            </section>
+        }
+
+        @if (Model.CoQuyenXemHoaDon)
+        {
+            <section class="rc-surface rc-member-section" id="invoices">
+                <div class="rc-section-heading"><div><span class="rc-eyebrow">KẾ TOÁN</span><h2>Hóa đơn trong khu phụ trách</h2></div></div>
+                @if (Model.HoaDon.Count == 0)
+                {
+                    <div class="rc-empty-state"><strong>Chưa có hóa đơn</strong><span>Hóa đơn thuộc khu trọ sẽ xuất hiện tại đây.</span></div>
+                }
+                else
+                {
+                    <div class="rc-member-table-wrap"><table class="rc-member-table"><thead><tr><th>Mã hóa đơn</th><th>Phòng</th><th>Ngày lập</th><th>Tổng thanh toán</th><th>Còn nợ</th><th>Trạng thái</th></tr></thead><tbody>
+                    @foreach (var bill in Model.HoaDon)
+                    {
+                        <tr><td>@bill.MaHoaDon</td><td>@bill.Phong.MaPhong</td><td>@bill.NgayLap.ToString("dd/MM/yyyy")</td><td>@bill.TongThanhToan.ToString("N0") ₫</td><td>@bill.ConNo.GetValueOrDefault().ToString("N0") ₫</td><td>@bill.TrangThai</td></tr>
+                    }
+                    </tbody></table></div>
+                }
+            </section>
+        }
+
+        <section class="rc-surface rc-member-section" id="notifications">
+            <div class="rc-section-heading"><div><span class="rc-eyebrow">CẬP NHẬT</span><h2>Thông báo</h2></div></div>
+            @if (Model.ThongBao.Count == 0)
+            {
+                <div class="rc-empty-state"><strong>Chưa có thông báo</strong><span>Thông tin mới sẽ được gửi đến đây.</span></div>
+            }
+            else
+            {
+                <div class="rc-member-list">
+                    @foreach (var item in Model.ThongBao)
+                    {
+                        <article class="rc-member-record">
+                            <div class="rc-member-record-heading">
+                                <div><strong>@item.ThongBao.TieuDe</strong><span>@item.ThongBao.NgayTao.ToString("dd/MM/yyyy HH:mm")</span></div>
+                                @if (!item.DaDoc)
+                                {
+                                    <span class="rc-status-pill is-pending">Chưa đọc</span>
+                                }
+                            </div>
+                            <p>@item.ThongBao.NoiDung</p>
+                            @if (!item.DaDoc)
+                            {
+                                using (Html.BeginRouteForm("MemberNotificationRead", new { id = item.Id }, FormMethod.Post, new { @class = "rc-inline-form" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button class="rc-text-button" type="submit">Đánh dấu đã đọc</button>
+                                }
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+        <footer class="rc-footer">© @DateTime.Today.Year RoomCare <span>·</span> Chăm sóc nơi an cư</footer>
+    </main>
+</body>
+</html>
