@@ -218,7 +218,7 @@ namespace Web.Models.ViewModel
         public string TenDangNhap { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
-        [MinLength(10, ErrorMessage = "Mật khẩu tối thiểu 10 ký tự")]
+        [MinLength(8, ErrorMessage = "Mật khẩu tối thiểu 8 ký tự")]
         [DataType(DataType.Password)]
         public string MatKhau { get; set; }
 
@@ -259,7 +259,7 @@ namespace Web.Models.ViewModel
         public string TenDangNhap { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
-        [MinLength(10, ErrorMessage = "Mật khẩu tối thiểu 10 ký tự")]
+        [MinLength(8, ErrorMessage = "Mật khẩu tối thiểu 8 ký tự")]
         [DataType(DataType.Password)]
         public string MatKhau { get; set; }
 

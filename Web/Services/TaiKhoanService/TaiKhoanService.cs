@@ -124,6 +124,13 @@ namespace Web.Services.TaiKhoanService
                 : _repository.GetActiveOwnerAccount(username.Trim());
         }
 
+        public TaiKhoan GetActiveAccount(string username)
+        {
+            return string.IsNullOrWhiteSpace(username)
+                ? null
+                : _repository.GetActiveAccount(username.Trim());
+        }
+
         public bool HasActiveOwnerProfile(string email)
         {
             return !string.IsNullOrWhiteSpace(email) &&
@@ -181,6 +188,24 @@ namespace Web.Services.TaiKhoanService
         {
             return !string.IsNullOrWhiteSpace(username) &&
                 _repository.MarkNotificationRead(username.Trim(), recipientId);
+        }
+
+        public bool ChangePassword(string username, string oldPassword, string newPassword)
+        {
+            var account = _repository.GetActiveAccount(username);
+
+            if (account == null)
+                return false;
+
+            if (!PasswordHasher.Verify(oldPassword, account.MatKhauHash))
+                return false;
+
+            account.MatKhauHash = PasswordHasher.Hash(newPassword);
+            account.YeuCauDoiMatKhau = false;
+
+            _repository.Update(account);
+
+            return true;
         }
     }
 }
