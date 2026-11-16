@@ -29,5 +29,7 @@ namespace Web.Repositories.TaiKhoanRepository
         bool IsOwnerEmailUsed(string email);
 
         void CompleteOwnerProfile(TaiKhoan account, ChuTro chuTro);
+
+        bool MarkNotificationRead(string username, long recipientId);
     }
 }

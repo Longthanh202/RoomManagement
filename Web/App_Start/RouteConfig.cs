@@ -52,6 +52,69 @@ namespace Web
                 });
 
             routes.MapRoute(
+                name: "MemberNotificationRead",
+                url: "portal/thong-bao/read/{id}",
+                defaults: new
+                {
+                    controller = "Account",
+                    action = "MarkMemberNotificationRead"
+                });
+
+            routes.MapRoute(
+                name: "ResidentDashboard",
+                url: "cu-dan",
+                defaults: new
+                {
+                    controller = "Resident",
+                    action = "Index"
+                });
+
+            routes.MapRoute(
+                name: "ResidentCreateRepair",
+                url: "cu-dan/yeu-cau-sua-chua",
+                defaults: new
+                {
+                    controller = "Resident",
+                    action = "CreateRepairRequest"
+                });
+
+            routes.MapRoute(
+                name: "ResidentRegisterGuest",
+                url: "cu-dan/dang-ky-khach",
+                defaults: new
+                {
+                    controller = "Resident",
+                    action = "RegisterGuest"
+                });
+
+            routes.MapRoute(
+                name: "EmployeeDashboard",
+                url: "nhan-vien",
+                defaults: new
+                {
+                    controller = "Employee",
+                    action = "Index"
+                });
+
+            routes.MapRoute(
+                name: "EmployeeUpdateRepair",
+                url: "nhan-vien/yeu-cau-sua-chua/cap-nhat",
+                defaults: new
+                {
+                    controller = "Employee",
+                    action = "UpdateRepairStatus"
+                });
+
+            routes.MapRoute(
+                name: "EmployeeUpdateGuest",
+                url: "nhan-vien/dang-ky-khach/cap-nhat",
+                defaults: new
+                {
+                    controller = "Employee",
+                    action = "UpdateGuestStatus"
+                });
+
+            routes.MapRoute(
                 name: "CompleteOwnerProfile",
                 url: "owner/profile/complete",
                 defaults: new

@@ -1,0 +1,294 @@
+﻿@using System.Linq
+@model Web.Models.ViewModel.ResidentDashboardViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Không gian cư dân | RoomCare";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c35" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
+</head>
+<body class="rc-dashboard rc-member-app">
+    <header class="rc-app-header rc-member-header">
+        <a class="rc-brand" href="@Url.Action("Index", "Resident")">
+            <span class="rc-brand-mark" aria-hidden="true">R</span>
+            <span>Room<span>Care</span></span>
+        </a>
+        <nav class="rc-member-nav" aria-label="Điều hướng cư dân">
+            <a href="#overview">Tổng quan</a>
+            <a href="#contracts">Hợp đồng</a>
+            <a href="#occupancy">Lịch sử cư trú</a>
+            <a href="#bills">Hóa đơn</a>
+            <a href="#repairs">Sửa chữa</a>
+            <a href="#guests">Khách</a>
+        </nav>
+        <div class="rc-header-actions">
+            <a class="rc-notification-button" href="#notifications" aria-label="Thông báo">
+                ♧
+                @if (Model.SoThongBaoChuaDoc > 0)
+                {
+                    <span class="rc-notification-badge">@Model.SoThongBaoChuaDoc</span>
+                }
+            </a>
+            <span class="rc-user-avatar" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.HoTen) ? "C" : Model.HoTen.Substring(0, 1).ToUpper())</span>
+            <span class="rc-user-name">@Model.HoTen</span>
+            @using (Html.BeginRouteForm("Logout", new { }, FormMethod.Post, new { @class = "rc-logout-form" }))
+            {
+                @Html.AntiForgeryToken()
+                <button class="rc-logout" type="submit">Đăng xuất</button>
+            }
+        </div>
+    </header>
+    <main class="rc-member-main">
+        @if (TempData["Success"] != null)
+        {
+            <div class="rc-alert rc-alert-success" role="status">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="rc-alert rc-alert-error" role="alert">@TempData["Error"]</div>
+        }
+        @if (Model.YeuCauDoiMatKhau)
+        {
+            <div class="rc-alert rc-alert-error" role="status">Tài khoản đang sử dụng mật khẩu tạm thời. Vui lòng liên hệ chủ trọ để được hỗ trợ đổi mật khẩu.</div>
+        }
+
+        <section class="rc-member-welcome" id="overview">
+            <div>
+                <span class="rc-eyebrow">KHÔNG GIAN CƯ DÂN</span>
+                <h1>Xin chào, @Model.HoTen</h1>
+                <p>Theo dõi nơi ở, hóa đơn và các yêu cầu hỗ trợ của bạn.</p>
+            </div>
+            @if (Model.CoHopDongHienTai)
+            {
+                <div class="rc-portal-location">
+                    <span class="rc-stat-icon rc-icon-green" aria-hidden="true">⌂</span>
+                    <div><strong>Phòng @Model.TenPhong</strong><span>@Model.TenKhuTro · @Model.TenDayTro</span></div>
+                </div>
+            }
+            else
+            {
+                <div class="rc-portal-location"><span class="rc-stat-icon rc-icon-orange" aria-hidden="true">!</span><div><strong>Chưa có hợp đồng hiện tại</strong><span>Liên hệ chủ trọ để cập nhật thông tin cư trú.</span></div></div>
+            }
+        </section>
+
+        <div class="rc-member-stats">
+            <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-blue">▤</span><div><span class="rc-stat-label">Hóa đơn</span><strong>@Model.HoaDon.Count</strong></div><span class="rc-stat-note">gần đây</span></article>
+            <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-orange">⚒</span><div><span class="rc-stat-label">Yêu cầu sửa chữa</span><strong>@Model.YeuCauSuaChua.Count</strong></div><span class="rc-stat-note">đã gửi</span></article>
+            <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-purple">♧</span><div><span class="rc-stat-label">Đăng ký khách</span><strong>@Model.DangKyKhach.Count</strong></div><span class="rc-stat-note">gần đây</span></article>
+        </div>
+
+        <section class="rc-surface rc-member-section" id="contracts">
+            <div class="rc-section-heading"><div><span class="rc-eyebrow">CƯ TRÚ</span><h2>Hợp đồng của tôi</h2><p>Thông tin hợp đồng gắn với tài khoản cư dân này.</p></div></div>
+            @if (Model.HopDong.Count == 0)
+            {
+                <div class="rc-empty-state"><strong>Chưa có hợp đồng</strong><span>Hợp đồng sẽ xuất hiện khi được chủ trọ liên kết với bạn.</span></div>
+            }
+            else
+            {
+                <div class="rc-member-list">
+                    @foreach (var contract in Model.HopDong)
+                    {
+                        var isCurrentContract = contract.TrangThai == "DangHieuLuc" &&
+                            contract.NgayBatDau <= DateTime.Today &&
+                            contract.NgayKetThuc >= DateTime.Today;
+                        var occupants = contract.HopDongThanhVien
+                            .Where(x => x.TrangThai && x.CuDan != null &&
+                                x.NgayBatDau <= DateTime.Today &&
+                                (!x.NgayKetThuc.HasValue || x.NgayKetThuc >= DateTime.Today))
+                            .Select(x => x.CuDan.HoTen)
+                            .Where(x => !string.IsNullOrWhiteSpace(x))
+                            .Distinct()
+                            .ToList();
+                        if (!occupants.Contains(contract.CuDan.HoTen))
+                        {
+                            occupants.Insert(0, contract.CuDan.HoTen);
+                        }
+                        <article class="rc-member-record">
+                            <div class="rc-member-record-heading"><div><strong>@contract.MaHopDong · @contract.Phong.Tang.DayTro.KhuTro.TenKhuTro · Phòng @contract.Phong.MaPhong</strong><span>@contract.NgayBatDau.ToString("dd/MM/yyyy") – @contract.NgayKetThuc.ToString("dd/MM/yyyy")</span></div><span class="rc-status-pill @(isCurrentContract ? "is-active" : "is-inactive")">@(isCurrentContract ? "Đang hiệu lực" : contract.TrangThai)</span></div>
+                            <div class="rc-member-amount-row"><span>Giá thuê</span><strong>@contract.GiaThue.ToString("N0") ₫ / tháng</strong></div>
+                            <div class="rc-member-amount-row"><span>Tiền cọc</span><span>@contract.TienCoc.ToString("N0") ₫</span></div>
+                            <p>Thành viên đang ở: @string.Join(", ", occupants)</p>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="rc-surface rc-member-section" id="occupancy">
+            <div class="rc-section-heading"><div><span class="rc-eyebrow">LỊCH SỬ</span><h2>Lịch sử cư trú</h2></div></div>
+            @if (Model.LichSuCuTru.Count == 0)
+            {
+                <div class="rc-empty-state"><strong>Chưa có lịch sử cư trú</strong><span>Thông tin sẽ hiển thị khi được ghi nhận trong hợp đồng.</span></div>
+            }
+            else
+            {
+                <div class="rc-member-table-wrap"><table class="rc-member-table"><thead><tr><th>Khu trọ / phòng</th><th>Ngày vào</th><th>Ngày ra</th><th>Ghi chú</th></tr></thead><tbody>
+                @foreach (var history in Model.LichSuCuTru)
+                {
+                    <tr><td>@history.Phong.Tang.DayTro.KhuTro.TenKhuTro · @history.Phong.MaPhong</td><td>@history.NgayVao.ToString("dd/MM/yyyy")</td><td>@(history.NgayRa.HasValue ? history.NgayRa.Value.ToString("dd/MM/yyyy") : "Đang cư trú")</td><td>@history.LyDo</td></tr>
+                }
+                </tbody></table></div>
+            }
+        </section>
+
+        <section class="rc-surface rc-member-section" id="bills">
+            <div class="rc-section-heading"><div><span class="rc-eyebrow">CHI PHÍ</span><h2>Hóa đơn của tôi</h2><p>Hóa đơn liên quan đến các hợp đồng cư trú của bạn.</p></div></div>
+            @if (Model.HoaDon.Count == 0)
+            {
+                <div class="rc-empty-state"><strong>Chưa có hóa đơn</strong><span>Hóa đơn mới sẽ được hiển thị tại đây.</span></div>
+            }
+            else
+            {
+                <div class="rc-member-list">
+                    @foreach (var bill in Model.HoaDon)
+                    {
+                        <article class="rc-member-record">
+                            <div class="rc-member-record-heading"><div><strong>@bill.MaHoaDon</strong><span>Phòng @bill.Phong.MaPhong · lập ngày @bill.NgayLap.ToString("dd/MM/yyyy")</span></div><span class="rc-status-pill @(bill.ConNo.GetValueOrDefault() > 0 ? "is-pending" : "is-active")">@(string.IsNullOrWhiteSpace(bill.TrangThai) ? "Chưa cập nhật" : bill.TrangThai)</span></div>
+                            <div class="rc-member-amount-row"><span>Tổng thanh toán</span><strong>@bill.TongThanhToan.ToString("N0") ₫</strong></div>
+                            <div class="rc-member-amount-row"><span>Đã thanh toán</span><span>@bill.DaThanhToan.ToString("N0") ₫</span></div>
+                            <div class="rc-member-amount-row"><span>Còn nợ · hạn @bill.HanThanhToan.ToString("dd/MM/yyyy")</span><strong>@bill.ConNo.GetValueOrDefault().ToString("N0") ₫</strong></div>
+                            @if (bill.ChiTietHoaDon.Count > 0)
+                            {
+                                <details class="rc-member-details"><summary>Xem chi tiết khoản thu</summary><ul>@foreach (var line in bill.ChiTietHoaDon){<li><span>@line.TenKhoanThu · @line.SoLuong.ToString("N0") @line.DonViTinh</span><strong>@line.ThanhTien.ToString("N0") ₫</strong></li>}</ul></details>
+                            }
+                        </article>
+                    }
+                </div>
+                <p class="rc-form-hint">RoomCare chưa tích hợp thanh toán trực tuyến. Vui lòng thanh toán theo hướng dẫn của chủ trọ; trạng thái hóa đơn chỉ cập nhật sau khi được xác nhận.</p>
+            }
+        </section>
+
+        <section class="rc-surface rc-member-section" id="services">
+            <div class="rc-section-heading"><div><span class="rc-eyebrow">TIỆN ÍCH PHÒNG</span><h2>Dịch vụ đang áp dụng</h2></div></div>
+            @if (Model.BangGiaDichVu.Count == 0)
+            {
+                <div class="rc-empty-state"><strong>Chưa có dịch vụ được ghi nhận</strong><span>Liên hệ chủ trọ nếu bạn cần thêm thông tin.</span></div>
+            }
+            else
+            {
+                <div class="rc-member-service-grid">
+                    @foreach (var service in Model.BangGiaDichVu)
+                    {
+                        <article><span class="rc-stat-icon rc-icon-green">◇</span><div><strong>@service.DichVu.TenDichVu</strong><span>@service.KhuTro.TenKhuTro · @service.DichVu.LoaiTinhPhi · @service.DichVu.DonViTinh</span></div><b>@service.DonGia.ToString("N0") ₫</b></article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="rc-member-work-grid">
+            <section class="rc-surface rc-member-section" id="repairs">
+                <div class="rc-section-heading"><div><span class="rc-eyebrow">HỖ TRỢ</span><h2>Yêu cầu sửa chữa</h2></div></div>
+                @if (Model.CoHopDongHienTai)
+                {
+                    using (Html.BeginRouteForm("ResidentCreateRepair", new { }, FormMethod.Post, new { @class = "rc-member-form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(false, "", new { @class = "rc-validation-summary" })
+                        <label for="repair-title">Tiêu đề</label>
+                        <input id="repair-title" name="TieuDe" class="form-control" maxlength="200" required />
+                        @Html.ValidationMessage("TieuDe", "", new { @class = "field-validation-error" })
+                        <label for="repair-description">Mô tả sự cố</label>
+                        <textarea id="repair-description" name="NoiDung" class="form-control" rows="3" maxlength="2000" required></textarea>
+                        @Html.ValidationMessage("NoiDung", "", new { @class = "field-validation-error" })
+                        <label for="repair-priority">Mức độ ưu tiên</label>
+                        <select id="repair-priority" name="MucDoUuTien" class="form-control">
+                            <option value="BinhThuong">Bình thường</option>
+                            <option value="Thap">Thấp</option>
+                            <option value="Cao">Cao</option>
+                            <option value="KhanCap">Khẩn cấp</option>
+                        </select>
+                        <button class="btn rc-btn-primary" type="submit">Gửi yêu cầu</button>
+                    }
+                }
+                else
+                {
+                    <div class="rc-empty-state"><strong>Cần hợp đồng đang hiệu lực</strong><span>Bạn cần có hợp đồng hiện tại để tạo yêu cầu sửa chữa.</span></div>
+                }
+                <div class="rc-member-list">
+                    @foreach (var request in Model.YeuCauSuaChua)
+                    {
+                        <article class="rc-member-record"><div class="rc-member-record-heading"><div><strong>@request.TieuDe</strong><span>Phòng @request.Phong.MaPhong · @request.NgayTao.ToString("dd/MM/yyyy HH:mm")</span></div><span class="rc-status-pill is-pending">@request.TrangThai</span></div><p>@request.NoiDung</p></article>
+                    }
+                </div>
+            </section>
+
+            <section class="rc-surface rc-member-section" id="guests">
+                <div class="rc-section-heading"><div><span class="rc-eyebrow">LỄ TÂN</span><h2>Đăng ký khách</h2></div></div>
+                @if (Model.CoHopDongHienTai)
+                {
+                    using (Html.BeginRouteForm("ResidentRegisterGuest", new { }, FormMethod.Post, new { @class = "rc-member-form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(false, "", new { @class = "rc-validation-summary" })
+                        <label for="guest-name">Tên khách</label>
+                        <input id="guest-name" name="TenKhach" class="form-control" maxlength="200" required />
+                        @Html.ValidationMessage("TenKhach", "", new { @class = "field-validation-error" })
+                        <div class="rc-member-form-row"><div><label for="guest-phone">Số điện thoại</label><input id="guest-phone" name="SoDienThoai" class="form-control" maxlength="20" /></div><div><label for="guest-count">Số lượng</label><input id="guest-count" name="SoLuongKhach" type="number" min="1" max="20" value="1" class="form-control" /></div></div>
+                        <label for="guest-arrival">Dự kiến đến</label>
+                        <input id="guest-arrival" name="ThoiGianDuKienDen" type="datetime-local" class="form-control" required />
+                        @Html.ValidationMessage("ThoiGianDuKienDen", "", new { @class = "field-validation-error" })
+                        <label for="guest-departure">Dự kiến về</label>
+                        <input id="guest-departure" name="ThoiGianDuKienVe" type="datetime-local" class="form-control" required />
+                        @Html.ValidationMessage("ThoiGianDuKienVe", "", new { @class = "field-validation-error" })
+                        <label for="guest-note">Ghi chú (không bắt buộc)</label>
+                        <input id="guest-note" name="GhiChu" class="form-control" maxlength="500" />
+                        <button class="btn rc-btn-secondary" type="submit">Gửi đăng ký</button>
+                    }
+                }
+                else
+                {
+                    <div class="rc-empty-state"><strong>Cần hợp đồng đang hiệu lực</strong><span>Bạn cần có hợp đồng hiện tại để đăng ký khách.</span></div>
+                }
+                <div class="rc-member-list">
+                    @foreach (var guest in Model.DangKyKhach)
+                    {
+                        <article class="rc-member-record"><div class="rc-member-record-heading"><div><strong>@guest.TenKhach</strong><span>Phòng @guest.Phong.MaPhong · @guest.ThoiGianDuKienDen.GetValueOrDefault().ToString("dd/MM/yyyy HH:mm")</span></div><span class="rc-status-pill is-pending">@guest.TrangThai</span></div><p>@guest.SoLuongKhach khách · dự kiến về @guest.ThoiGianDuKienVe.GetValueOrDefault().ToString("dd/MM/yyyy HH:mm")</p></article>
+                    }
+                </div>
+            </section>
+        </section>
+
+        <section class="rc-surface rc-member-section" id="notifications">
+            <div class="rc-section-heading"><div><span class="rc-eyebrow">CẬP NHẬT</span><h2>Thông báo</h2></div></div>
+            @if (Model.ThongBao.Count == 0)
+            {
+                <div class="rc-empty-state"><strong>Chưa có thông báo</strong><span>Thông tin mới sẽ được gửi đến đây.</span></div>
+            }
+            else
+            {
+                <div class="rc-member-list">
+                    @foreach (var item in Model.ThongBao)
+                    {
+                        <article class="rc-member-record">
+                            <div class="rc-member-record-heading">
+                                <div><strong>@item.ThongBao.TieuDe</strong><span>@item.ThongBao.NgayTao.ToString("dd/MM/yyyy HH:mm")</span></div>
+                                @if (!item.DaDoc)
+                                {
+                                    <span class="rc-status-pill is-pending">Chưa đọc</span>
+                                }
+                            </div>
+                            <p>@item.ThongBao.NoiDung</p>
+                            @if (!item.DaDoc)
+                            {
+                                using (Html.BeginRouteForm("MemberNotificationRead", new { id = item.Id }, FormMethod.Post, new { @class = "rc-inline-form" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button class="rc-text-button" type="submit">Đánh dấu đã đọc</button>
+                                }
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+        <footer class="rc-footer">© @DateTime.Today.Year RoomCare <span>·</span> Chăm sóc nơi an cư</footer>
+    </main>
+</body>
+</html>

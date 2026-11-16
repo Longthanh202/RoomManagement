@@ -165,7 +165,9 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\EmployeeController.cs" />
     <Compile Include="Controllers\OwnerController.cs" />
+    <Compile Include="Controllers\ResidentController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -322,6 +324,7 @@
       <DependentUpon>QuanLyPhongTroModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ViewModel\RegisterOwnerViewModel.cs" />
+    <Compile Include="Models\ViewModel\MemberPortalViewModels.cs" />
     <Compile Include="Models\Xe.cs">
       <DependentUpon>QuanLyPhongTroModel.tt</DependentUpon>
     </Compile>
@@ -336,10 +339,18 @@
     <Compile Include="Repositories\TaiKhoanRepository\TaiKhoanRepository.cs" />
     <Compile Include="Repositories\OwnerRepository\IOwnerRepository.cs" />
     <Compile Include="Repositories\OwnerRepository\OwnerRepository.cs" />
+    <Compile Include="Repositories\ResidentRepository\IResidentRepository.cs" />
+    <Compile Include="Repositories\ResidentRepository\ResidentRepository.cs" />
+    <Compile Include="Repositories\EmployeeRepository\IEmployeeRepository.cs" />
+    <Compile Include="Repositories\EmployeeRepository\EmployeeRepository.cs" />
     <Compile Include="Services\TaiKhoanService\ITaiKhoanService.cs" />
     <Compile Include="Services\TaiKhoanService\TaiKhoanService.cs" />
     <Compile Include="Services\OwnerService\IOwnerService.cs" />
     <Compile Include="Services\OwnerService\OwnerService.cs" />
+    <Compile Include="Services\ResidentService\IResidentService.cs" />
+    <Compile Include="Services\ResidentService\ResidentService.cs" />
+    <Compile Include="Services\EmployeeService\IEmployeeService.cs" />
+    <Compile Include="Services\EmployeeService\EmployeeService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -396,7 +407,9 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\CompleteOwnerProfile.cshtml" />
     <Content Include="Views\Account\Portal.cshtml" />
+    <Content Include="Views\Employee\Index.cshtml" />
     <Content Include="Views\Owner\Index.cshtml" />
+    <Content Include="Views\Resident\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
