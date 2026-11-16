@@ -1,0 +1,983 @@
+/* RoomCare - Responsive resident dashboard
+   Load this file AFTER ~/Content/roomcare.css.
+   Mục lục:
+   1. Biến & nền tảng      5. Form, nút, validation
+   2. Layout (sidebar/header) 6. Trạng thái trống, dịch vụ, chi tiết
+   3. Panel & thẻ          7. Modal
+   4. Danh sách, bảng      8. Responsive
+*/
+
+/* ===== 1. Biến & nền tảng ===== */
+:root {
+    --rc-ink: #172b27;
+    --rc-muted: #71817c;
+    --rc-line: #e7eeeb;
+    --rc-soft: #f5f8f7;
+    --rc-green: #176b55;
+    --rc-green-dark: #105541;
+    --rc-green-soft: #eaf5f0;
+    --rc-blue-soft: #edf4ff;
+    --rc-orange-soft: #fff5e8;
+    --rc-purple-soft: #f4efff;
+    --rc-shadow: 0 12px 34px rgba(22, 48, 40, .07);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body.rc-dashboard.rc-owner-app {
+    background: #f4f7f6;
+    color: var(--rc-ink);
+}
+
+body.rc-modal-open {
+    overflow: hidden;
+}
+
+/* ===== 2. Layout: sidebar, header, nội dung ===== */
+.rc-app-shell {
+    min-height: 100vh;
+}
+
+.rc-sidebar {
+    background: #123c35;
+    color: #fff;
+    border-right: 1px solid rgba(255,255,255,.08);
+}
+
+.rc-sidebar-brand {
+    color: #fff;
+}
+
+    .rc-sidebar-brand:hover {
+        color: #dff4e9;
+    }
+
+.rc-sidebar-caption {
+    color: #a9c7bb;
+    letter-spacing: .11em;
+}
+
+.rc-sidebar-nav {
+    gap: 7px;
+}
+
+    .rc-sidebar-nav button {
+        min-height: 45px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        color: #d5e5df;
+        padding: 10px 13px;
+        transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+        .rc-sidebar-nav button > span {
+            display: inline-flex;
+            width: 25px;
+            justify-content: center;
+            margin-right: 7px;
+            font-size: 17px;
+        }
+
+        .rc-sidebar-nav button:hover,
+        .rc-sidebar-nav button.is-active {
+            background: rgba(255,255,255,.12);
+            border-color: rgba(255,255,255,.1);
+            color: #fff;
+        }
+
+        .rc-sidebar-nav button:hover {
+            transform: translateX(2px);
+        }
+
+.rc-app-main {
+    min-width: 0;
+}
+
+.rc-app-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    min-height: 76px;
+    background: rgba(255,255,255,.94);
+    border-bottom: 1px solid var(--rc-line);
+    box-shadow: 0 3px 16px rgba(25, 50, 42, .025);
+    backdrop-filter: blur(12px);
+}
+
+.rc-header-kicker,
+.rc-eyebrow {
+    color: var(--rc-green);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .13em;
+}
+
+.rc-header-title strong {
+    color: var(--rc-ink);
+}
+
+.rc-user-avatar {
+    background: var(--rc-green-soft);
+    color: var(--rc-green);
+    font-weight: 800;
+}
+
+.rc-logout {
+    border: 1px solid #e5ece8;
+    border-radius: 9px;
+    padding: 8px 12px;
+    background: #fff;
+    color: #52645d;
+    font-weight: 650;
+}
+
+    .rc-logout:hover {
+        background: #fff4f2;
+        color: #b33e32;
+    }
+
+.rc-app-content {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: clamp(16px, 2.5vw, 32px);
+}
+
+.rc-alert {
+    margin-bottom: 16px;
+    border-radius: 11px;
+}
+
+.rc-footer {
+    padding: 22px 0 8px;
+    color: #8a9992;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* ===== 3. Panel, thẻ, tổng quan ===== */
+/* Chỉ hiện panel đang được chọn */
+.rc-workspace-panel {
+    display: none;
+}
+
+    .rc-workspace-panel.is-active {
+        display: block;
+    }
+
+.rc-surface,
+.rc-member-section {
+    min-width: 0;
+    padding: clamp(18px, 2.5vw, 27px);
+    border: 1px solid var(--rc-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--rc-shadow);
+}
+
+.rc-member-section {
+    margin-bottom: 20px;
+}
+
+.rc-section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 21px;
+}
+
+    .rc-section-heading h2 {
+        margin: 6px 0 5px;
+        color: var(--rc-ink);
+        font-size: clamp(19px, 2vw, 23px);
+        font-weight: 800;
+        letter-spacing: -.025em;
+    }
+
+    .rc-section-heading p {
+        margin: 0;
+        color: var(--rc-muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+.rc-member-welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: clamp(22px, 3vw, 34px);
+    border: 1px solid #dcebe4;
+    border-radius: 20px;
+    background: linear-gradient(115deg, #fff 0%, #f0f8f4 100%);
+    box-shadow: var(--rc-shadow);
+}
+
+    .rc-member-welcome h1 {
+        margin: 8px 0;
+        color: var(--rc-ink);
+        font-size: clamp(25px, 3vw, 34px);
+        font-weight: 800;
+        letter-spacing: -.035em;
+    }
+
+    .rc-member-welcome p {
+        margin: 0;
+        color: var(--rc-muted);
+        line-height: 1.65;
+    }
+
+.rc-portal-location {
+    min-width: 245px;
+    max-width: 340px;
+    padding: 15px 17px;
+    border: 1px solid #deebe5;
+    border-radius: 14px;
+    background: rgba(255,255,255,.82);
+}
+
+    .rc-portal-location strong {
+        display: block;
+        color: var(--rc-ink);
+        font-size: 15px;
+    }
+
+    .rc-portal-location span:not(.rc-stat-icon) {
+        color: var(--rc-muted);
+        font-size: 13px;
+    }
+
+.rc-stat-grid.rc-member-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 20px 0 24px;
+}
+
+.rc-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 19px;
+    border: 1px solid var(--rc-line);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(22,48,40,.035);
+}
+
+    .rc-stat-card > div {
+        min-width: 0;
+    }
+
+    .rc-stat-card strong {
+        display: block;
+        color: var(--rc-ink);
+        font-size: 25px;
+        line-height: 1.2;
+    }
+
+.rc-stat-label,
+.rc-stat-note {
+    color: var(--rc-muted);
+    font-size: 12px;
+}
+
+.rc-stat-icon {
+    display: inline-flex;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    font-size: 19px;
+}
+
+.rc-icon-green {
+    background: var(--rc-green-soft);
+    color: var(--rc-green);
+}
+
+.rc-icon-blue {
+    background: var(--rc-blue-soft);
+    color: #3869b5;
+}
+
+.rc-icon-orange {
+    background: var(--rc-orange-soft);
+    color: #b97821;
+}
+
+.rc-icon-purple {
+    background: var(--rc-purple-soft);
+    color: #7954b7;
+}
+
+/* Lưới 2 cột cho panel Hỗ trợ & khách (display đặt ở trạng thái is-active) */
+.rc-member-work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 20px;
+}
+
+    .rc-member-work-grid.rc-workspace-panel.is-active {
+        display: grid;
+    }
+
+    .rc-member-work-grid > .rc-surface {
+        min-width: 0;
+    }
+
+/* ===== 4. Danh sách & bảng ===== */
+.rc-member-list {
+    display: grid;
+    gap: 13px;
+}
+
+.rc-member-record {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #e8efec;
+    border-radius: 14px;
+    background: #fff;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+    .rc-member-record:hover {
+        border-color: #cbded5;
+        box-shadow: 0 7px 20px rgba(22,48,40,.055);
+        transform: translateY(-1px);
+    }
+
+.rc-member-record-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 13px;
+}
+
+    .rc-member-record-heading > div {
+        min-width: 0;
+    }
+
+    .rc-member-record-heading strong {
+        display: block;
+        color: var(--rc-ink);
+        font-size: 15px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .rc-member-record-heading span:not(.rc-status-pill) {
+        display: block;
+        margin-top: 4px;
+        color: var(--rc-muted);
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+.rc-member-record p {
+    margin: 10px 0 0;
+    color: #667770;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.rc-member-amount-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 9px 0;
+    border-top: 1px solid #f0f3f2;
+    color: var(--rc-muted);
+    font-size: 13px;
+}
+
+    .rc-member-amount-row strong {
+        color: var(--rc-ink);
+        font-size: 14px;
+    }
+
+.rc-status-pill {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f0f3f2;
+    color: #596a63;
+    font-size: 11px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+    .rc-status-pill.is-active {
+        background: #e8f6ee;
+        color: #187348;
+    }
+
+    .rc-status-pill.is-inactive {
+        background: #f0f2f3;
+        color: #66727a;
+    }
+
+    .rc-status-pill.is-pending {
+        background: #fff4df;
+        color: #986314;
+    }
+
+.rc-member-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--rc-line);
+    border-radius: 13px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.rc-member-table {
+    width: 100%;
+    min-width: 650px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .rc-member-table th {
+        padding: 13px 16px;
+        background: #f6f9f8;
+        color: #62736c;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .04em;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .rc-member-table td {
+        padding: 15px 16px;
+        border-top: 1px solid #edf1ef;
+        color: #40534b;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .rc-member-table tbody tr:hover {
+        background: #fbfdfc;
+    }
+
+/* ===== 5. Nút, form, validation ===== */
+.rc-btn-primary {
+    background: var(--rc-green);
+    color: #fff;
+}
+
+    .rc-btn-primary:hover {
+        background: var(--rc-green-dark);
+        color: #fff;
+    }
+
+.rc-btn-secondary {
+    background: #294f75;
+    color: #fff;
+}
+
+    .rc-btn-secondary:hover {
+        background: #203f5e;
+        color: #fff;
+    }
+
+.rc-btn-ghost {
+    background: #fff;
+    color: #52645d;
+    border: 1px solid #dfe8e3;
+}
+
+    .rc-btn-ghost:hover {
+        background: #f5f8f7;
+        color: var(--rc-ink);
+    }
+
+/* Nút thêm ở tiêu đề mỗi danh sách */
+.rc-btn-add {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+    .rc-btn-add[disabled] {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+/* Hàng 2 cột trong form (dùng trong modal) */
+.rc-member-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+    .rc-member-form-row > div {
+        min-width: 0;
+    }
+
+.rc-validation-summary,
+.field-validation-error {
+    color: #bd3e36;
+    font-size: 12px;
+}
+
+    .rc-validation-summary ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+/* ===== 6. Trạng thái trống, dịch vụ, chi tiết ===== */
+.rc-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    margin: 0 auto 14px;
+    padding: 27px 18px;
+    border: 1px dashed #dce7e1;
+    border-radius: 13px;
+    background: #fafcfb;
+    text-align: center;
+}
+
+    .rc-empty-state strong {
+        color: #344b41;
+        font-size: 14px;
+    }
+
+    .rc-empty-state span {
+        max-width: 440px;
+        color: var(--rc-muted);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+.rc-member-service-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+    .rc-member-service-grid article {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 15px;
+        border: 1px solid var(--rc-line);
+        border-radius: 13px;
+        background: #fff;
+    }
+
+        .rc-member-service-grid article > div {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .rc-member-service-grid article strong,
+        .rc-member-service-grid article span:not(.rc-stat-icon) {
+            display: block;
+            overflow-wrap: anywhere;
+        }
+
+        .rc-member-service-grid article strong {
+            color: var(--rc-ink);
+            font-size: 13px;
+        }
+
+        .rc-member-service-grid article span:not(.rc-stat-icon) {
+            margin-top: 4px;
+            color: var(--rc-muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .rc-member-service-grid article b {
+            color: var(--rc-green);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+.rc-member-details {
+    margin-top: 12px;
+    padding-top: 11px;
+    border-top: 1px solid #edf1ef;
+}
+
+    .rc-member-details summary {
+        color: var(--rc-green);
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .rc-member-details ul {
+        margin: 10px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .rc-member-details li {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 7px 0;
+        color: #687970;
+        font-size: 12px;
+    }
+
+        .rc-member-details li strong {
+            color: var(--rc-ink);
+            white-space: nowrap;
+        }
+
+.rc-form-hint {
+    color: var(--rc-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* ===== 7. Modal pop-up ===== */
+.rc-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(14, 36, 30, .55);
+    backdrop-filter: blur(3px);
+}
+
+    .rc-modal-overlay.is-open {
+        display: flex;
+    }
+
+.rc-modal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 32px);
+    overflow: hidden;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(10, 30, 25, .3);
+    animation: rcModalIn .18s ease-out;
+}
+
+@keyframes rcModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.rc-modal-form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    margin: 0;
+}
+
+.rc-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--rc-line);
+}
+
+    .rc-modal-header h3 {
+        margin: 0;
+        color: var(--rc-ink);
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+.rc-modal-x {
+    border: 0;
+    background: none;
+    color: var(--rc-muted);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .rc-modal-x:hover {
+        color: var(--rc-ink);
+    }
+
+.rc-modal-body {
+    display: grid;
+    gap: 9px;
+    padding: 20px 22px;
+    overflow-y: auto;
+}
+
+    .rc-modal-body label {
+        margin: 5px 0 0;
+        color: #344a41;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .rc-modal-body .form-control {
+        width: 100%;
+        min-height: 43px;
+        border: 1px solid #dfe8e3;
+        border-radius: 9px;
+        background: #fff;
+        color: var(--rc-ink);
+        box-shadow: none;
+        font-size: 13px;
+    }
+
+    .rc-modal-body textarea.form-control {
+        min-height: 92px;
+        resize: vertical;
+    }
+
+    .rc-modal-body .form-control:focus {
+        border-color: #7eb59f;
+        box-shadow: 0 0 0 3px rgba(23, 107, 85, .1);
+        outline: 0;
+    }
+
+.rc-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 22px;
+    border-top: 1px solid var(--rc-line);
+    background: #fafcfb;
+}
+
+    .rc-modal-footer .btn {
+        min-height: 42px;
+        padding: 8px 20px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+/* Ẩn vùng validation khi chưa có lỗi */
+.rc-modal .validation-summary-valid,
+.rc-modal .field-validation-valid,
+.rc-modal .rc-validation-summary:empty {
+    display: none !important;
+}
+
+/* Khi có lỗi thì hiện gọn gàng, không viền */
+.rc-modal .validation-summary-errors {
+    margin: 0 0 4px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: #fdeceb;
+    color: #bd3e36;
+    font-size: 12px;
+}
+
+    .rc-modal .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+/* ===== 8. Responsive ===== */
+@media (max-width: 1100px) {
+    .rc-app-content {
+        padding: 20px;
+    }
+
+    .rc-member-work-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .rc-app-header {
+        min-height: 64px;
+        padding: 9px 13px;
+        gap: 10px;
+    }
+
+    .rc-header-title strong {
+        font-size: 14px;
+    }
+
+    .rc-header-kicker {
+        font-size: 9px;
+    }
+
+    .rc-header-actions {
+        gap: 8px;
+    }
+
+    .rc-user-name {
+        display: none;
+    }
+
+    .rc-logout {
+        padding: 7px 9px;
+        font-size: 11px;
+    }
+
+    .rc-app-content {
+        padding: 14px;
+    }
+
+    .rc-member-welcome {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 17px;
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+        .rc-member-welcome h1 {
+            font-size: 25px;
+        }
+
+    .rc-portal-location {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+    }
+
+    .rc-stat-grid.rc-member-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin: 13px 0 17px;
+    }
+
+    .rc-stat-card {
+        padding: 14px;
+    }
+
+        .rc-stat-card strong {
+            font-size: 21px;
+        }
+
+    .rc-surface,
+    .rc-member-section {
+        padding: 16px;
+        border-radius: 15px;
+    }
+
+    .rc-section-heading {
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+        .rc-section-heading .rc-btn-add {
+            width: 100%;
+        }
+
+    .rc-member-record {
+        padding: 14px;
+    }
+
+    .rc-member-record-heading {
+        flex-direction: column;
+        gap: 9px;
+    }
+
+        .rc-member-record-heading .rc-status-pill {
+            align-self: flex-start;
+        }
+
+    .rc-member-amount-row {
+        align-items: flex-start;
+        font-size: 12px;
+    }
+
+        .rc-member-amount-row strong {
+            text-align: right;
+        }
+
+    .rc-member-form-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .rc-member-service-grid {
+        grid-template-columns: 1fr;
+    }
+
+        .rc-member-service-grid article {
+            padding: 13px;
+        }
+
+    /* Modal dạng bottom sheet trên điện thoại */
+    .rc-modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .rc-modal {
+        max-width: none;
+        max-height: 92vh;
+        border-radius: 18px 18px 0 0;
+    }
+
+    .rc-modal-header,
+    .rc-modal-body,
+    .rc-modal-footer {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (max-width: 420px) {
+    .rc-app-content {
+        padding: 10px;
+    }
+
+    .rc-member-welcome {
+        padding: 16px;
+    }
+
+        .rc-member-welcome h1 {
+            font-size: 22px;
+        }
+
+    .rc-section-heading h2 {
+        font-size: 19px;
+    }
+
+    .rc-member-table {
+        min-width: 590px;
+    }
+
+    .rc-member-service-grid article b {
+        font-size: 12px;
+    }
+}

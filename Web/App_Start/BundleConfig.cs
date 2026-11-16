@@ -24,7 +24,15 @@ namespace Web
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                      "~/Content/site.css"                    
+                      ));
+            bundles.Add(new StyleBundle("~/Content/resident-css")
+        .Include("~/Content/bootstrap.min.css", new CssRewriteUrlTransform())
+        .Include("~/Content/roomcare.css", new CssRewriteUrlTransform())
+        .Include("~/Content/roomcare-member-responsive.css", new CssRewriteUrlTransform()));
+            // JS cư dân: jQuery trước, các file còn lại sau
+            bundles.Add(new ScriptBundle("~/bundles/resident-js").Include(                       
+                "~/Scripts/RoomCare/roomcare-resident-modal.js"));
         }
     }
 }
