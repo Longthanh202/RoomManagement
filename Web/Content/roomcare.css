@@ -1984,57 +1984,6 @@ body {
     }
 }
 
-.rc-member-header {
-    position: sticky;
-    z-index: 20;
-    top: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 18px;
-    min-height: 64px;
-    padding: 9px 14px;
-    background: rgba(255, 255, 255, .97);
-    box-shadow: 0 3px 14px rgba(22, 57, 48, .05);
-}
-
-.rc-member-nav {
-    display: flex;
-    order: 3;
-    width: 100%;
-    gap: 18px;
-    overflow-x: auto;
-    padding: 4px 0 2px;
-    white-space: nowrap;
-}
-
-.rc-member-nav a {
-    color: #60716b;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.rc-member-nav a:hover,
-.rc-member-nav a:focus {
-    color: var(--rc-green);
-}
-
-.rc-member-header .rc-header-actions {
-    margin-left: auto;
-    gap: 9px;
-}
-
-.rc-member-header .rc-user-name {
-    display: none;
-}
-
-.rc-member-main {
-    width: 100%;
-    max-width: 1250px;
-    margin: 0 auto;
-    padding: 20px 14px 0;
-}
-
 .rc-member-welcome {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -2242,6 +2191,14 @@ body {
     gap: 0;
 }
 
+.rc-member-work-grid.rc-workspace-panel {
+    display: none;
+}
+
+.rc-member-work-grid.rc-workspace-panel.is-active {
+    display: grid;
+}
+
 .rc-member-form {
     display: grid;
     gap: 8px;
@@ -2336,14 +2293,6 @@ body {
 }
 
 @media (min-width: 560px) {
-    .rc-member-header {
-        padding: 10px 22px;
-    }
-
-    .rc-member-main {
-        padding: 26px 22px 0;
-    }
-
     .rc-member-welcome {
         grid-template-columns: minmax(0, 1fr) minmax(260px, .7fr);
         gap: 18px;
@@ -2385,26 +2334,6 @@ body {
 }
 
 @media (min-width: 850px) {
-    .rc-member-header {
-        flex-wrap: nowrap;
-        padding: 10px 30px;
-    }
-
-    .rc-member-nav {
-        order: 0;
-        width: auto;
-        margin-left: 20px;
-        padding: 0;
-    }
-
-    .rc-member-header .rc-user-name {
-        display: inline-flex;
-    }
-
-    .rc-member-main {
-        padding: 32px 30px 0;
-    }
-
     .rc-member-welcome h1 {
         font-size: 30px;
     }

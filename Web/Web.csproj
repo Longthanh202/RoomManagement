@@ -376,6 +376,7 @@
     </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\roomcare-member-dashboard.js" />
     <EntityDeploy Include="Models\QuanLyPhongTroModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>QuanLyPhongTroModel.Designer.cs</LastGenOutput>
