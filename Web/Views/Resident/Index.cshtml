@@ -14,38 +14,54 @@
     <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
 </head>
-<body class="rc-dashboard rc-member-app">
-    <header class="rc-app-header rc-member-header">
-        <a class="rc-brand" href="@Url.Action("Index", "Resident")">
-            <span class="rc-brand-mark" aria-hidden="true">R</span>
-            <span>Room<span>Care</span></span>
-        </a>
-        <nav class="rc-member-nav" aria-label="Điều hướng cư dân">
-            <a href="#overview">Tổng quan</a>
-            <a href="#contracts">Hợp đồng</a>
-            <a href="#occupancy">Lịch sử cư trú</a>
-            <a href="#bills">Hóa đơn</a>
-            <a href="#repairs">Sửa chữa</a>
-            <a href="#guests">Khách</a>
-        </nav>
-        <div class="rc-header-actions">
-            <a class="rc-notification-button" href="#notifications" aria-label="Thông báo">
-                ♧
-                @if (Model.SoThongBaoChuaDoc > 0)
-                {
-                    <span class="rc-notification-badge">@Model.SoThongBaoChuaDoc</span>
-                }
+<body class="rc-dashboard rc-owner-app">
+    <div class="rc-app-shell">
+        <aside class="rc-sidebar" id="residentSidebar" aria-label="Menu cư dân">
+            <a class="rc-brand rc-sidebar-brand" href="@Url.Action("Index", "Resident")">
+                <span class="rc-brand-mark" aria-hidden="true">R</span>
+                <span>Room<span>Care</span></span>
             </a>
-            <span class="rc-user-avatar" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.HoTen) ? "C" : Model.HoTen.Substring(0, 1).ToUpper())</span>
-            <span class="rc-user-name">@Model.HoTen</span>
-            @using (Html.BeginRouteForm("Logout", new { }, FormMethod.Post, new { @class = "rc-logout-form" }))
-            {
-                @Html.AntiForgeryToken()
-                <button class="rc-logout" type="submit">Đăng xuất</button>
-            }
-        </div>
-    </header>
-    <main class="rc-member-main">
+            <span class="rc-sidebar-caption">KHÔNG GIAN CƯ DÂN</span>
+            <nav class="rc-sidebar-nav" aria-label="Điều hướng cư dân">
+                <button class="is-active" type="button" data-panel-target="overview"><span>⌂</span>Tổng quan</button>
+                <button type="button" data-panel-target="contracts"><span>▤</span>Hợp đồng</button>
+                <button type="button" data-panel-target="occupancy"><span>◷</span>Lịch sử cư trú</button>
+                <button type="button" data-panel-target="bills"><span>▧</span>Hóa đơn</button>
+                <button type="button" data-panel-target="services"><span>◇</span>Dịch vụ</button>
+                <button type="button" data-panel-target="support"><span>⚒</span>Hỗ trợ & khách</button>
+                <button type="button" data-panel-target="notifications"><span>♧</span>Thông báo</button>
+            </nav>
+            <div class="rc-sidebar-bottom">
+                <span class="rc-sidebar-caption">ROOMCARE · @DateTime.Today.Year</span>
+                <p>Chăm sóc nơi an cư</p>
+            </div>
+        </aside>
+
+        <div class="rc-app-main">
+            <header class="rc-app-header">
+                <button class="rc-mobile-menu" type="button" id="sidebarToggle" aria-label="Mở menu" aria-controls="residentSidebar" aria-expanded="false">☰</button>
+                <div class="rc-header-title">
+                    <span class="rc-header-kicker">ROOMCARE / CƯ DÂN</span>
+                    <strong>Xin chào, @Model.HoTen</strong>
+                </div>
+                <div class="rc-header-actions">
+                    <button class="rc-notification-button" type="button" data-panel-target="notifications" aria-label="Thông báo">
+                        ♧
+                        @if (Model.SoThongBaoChuaDoc > 0)
+                        {
+                            <span class="rc-notification-badge">@Model.SoThongBaoChuaDoc</span>
+                        }
+                    </button>
+                    <span class="rc-user-avatar" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.HoTen) ? "C" : Model.HoTen.Substring(0, 1).ToUpper())</span>
+                    <span class="rc-user-name">@Model.HoTen</span>
+                    @using (Html.BeginRouteForm("Logout", new { }, FormMethod.Post, new { @class = "rc-logout-form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button class="rc-logout" type="submit">Đăng xuất</button>
+                    }
+                </div>
+            </header>
+            <main class="rc-app-content">
         @if (TempData["Success"] != null)
         {
             <div class="rc-alert rc-alert-success" role="status">@TempData["Success"]</div>
@@ -59,7 +75,8 @@
             <div class="rc-alert rc-alert-error" role="status">Tài khoản đang sử dụng mật khẩu tạm thời. Vui lòng liên hệ chủ trọ để được hỗ trợ đổi mật khẩu.</div>
         }
 
-        <section class="rc-member-welcome" id="overview">
+        <section class="rc-workspace-panel is-active" id="panel-overview">
+        <section class="rc-member-welcome">
             <div>
                 <span class="rc-eyebrow">KHÔNG GIAN CƯ DÂN</span>
                 <h1>Xin chào, @Model.HoTen</h1>
@@ -78,13 +95,14 @@
             }
         </section>
 
-        <div class="rc-member-stats">
+        <div class="rc-stat-grid rc-member-stats">
             <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-blue">▤</span><div><span class="rc-stat-label">Hóa đơn</span><strong>@Model.HoaDon.Count</strong></div><span class="rc-stat-note">gần đây</span></article>
             <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-orange">⚒</span><div><span class="rc-stat-label">Yêu cầu sửa chữa</span><strong>@Model.YeuCauSuaChua.Count</strong></div><span class="rc-stat-note">đã gửi</span></article>
             <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-purple">♧</span><div><span class="rc-stat-label">Đăng ký khách</span><strong>@Model.DangKyKhach.Count</strong></div><span class="rc-stat-note">gần đây</span></article>
         </div>
+        </section>
 
-        <section class="rc-surface rc-member-section" id="contracts">
+        <section class="rc-surface rc-member-section rc-workspace-panel" id="panel-contracts">
             <div class="rc-section-heading"><div><span class="rc-eyebrow">CƯ TRÚ</span><h2>Hợp đồng của tôi</h2><p>Thông tin hợp đồng gắn với tài khoản cư dân này.</p></div></div>
             @if (Model.HopDong.Count == 0)
             {
@@ -121,7 +139,7 @@
             }
         </section>
 
-        <section class="rc-surface rc-member-section" id="occupancy">
+        <section class="rc-surface rc-member-section rc-workspace-panel" id="panel-occupancy">
             <div class="rc-section-heading"><div><span class="rc-eyebrow">LỊCH SỬ</span><h2>Lịch sử cư trú</h2></div></div>
             @if (Model.LichSuCuTru.Count == 0)
             {
@@ -138,7 +156,7 @@
             }
         </section>
 
-        <section class="rc-surface rc-member-section" id="bills">
+        <section class="rc-surface rc-member-section rc-workspace-panel" id="panel-bills">
             <div class="rc-section-heading"><div><span class="rc-eyebrow">CHI PHÍ</span><h2>Hóa đơn của tôi</h2><p>Hóa đơn liên quan đến các hợp đồng cư trú của bạn.</p></div></div>
             @if (Model.HoaDon.Count == 0)
             {
@@ -165,7 +183,7 @@
             }
         </section>
 
-        <section class="rc-surface rc-member-section" id="services">
+        <section class="rc-surface rc-member-section rc-workspace-panel" id="panel-services">
             <div class="rc-section-heading"><div><span class="rc-eyebrow">TIỆN ÍCH PHÒNG</span><h2>Dịch vụ đang áp dụng</h2></div></div>
             @if (Model.BangGiaDichVu.Count == 0)
             {
@@ -182,7 +200,7 @@
             }
         </section>
 
-        <section class="rc-member-work-grid">
+        <section class="rc-member-work-grid rc-workspace-panel" id="panel-support">
             <section class="rc-surface rc-member-section" id="repairs">
                 <div class="rc-section-heading"><div><span class="rc-eyebrow">HỖ TRỢ</span><h2>Yêu cầu sửa chữa</h2></div></div>
                 @if (Model.CoHopDongHienTai)
@@ -255,7 +273,7 @@
             </section>
         </section>
 
-        <section class="rc-surface rc-member-section" id="notifications">
+        <section class="rc-surface rc-member-section rc-workspace-panel" id="panel-notifications">
             <div class="rc-section-heading"><div><span class="rc-eyebrow">CẬP NHẬT</span><h2>Thông báo</h2></div></div>
             @if (Model.ThongBao.Count == 0)
             {
@@ -289,6 +307,11 @@
             }
         </section>
         <footer class="rc-footer">© @DateTime.Today.Year RoomCare <span>·</span> Chăm sóc nơi an cư</footer>
-    </main>
+            </main>
+        </div>
+    </div>
+    <div class="rc-sidebar-backdrop" id="sidebarBackdrop"></div>
+    <script src="@Url.Content("~/Scripts/jquery-3.4.1.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/roomcare-member-dashboard.js")"></script>
 </body>
 </html>
