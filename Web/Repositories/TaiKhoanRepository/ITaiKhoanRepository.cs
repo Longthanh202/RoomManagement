@@ -31,5 +31,6 @@ namespace Web.Repositories.TaiKhoanRepository
         void CompleteOwnerProfile(TaiKhoan account, ChuTro chuTro);
 
         bool MarkNotificationRead(string username, long recipientId);
+        void Update(TaiKhoan account);
     }
 }

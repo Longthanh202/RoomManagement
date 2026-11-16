@@ -251,6 +251,16 @@ namespace Web
             );
 
             routes.MapRoute(
+                name: "ChangePassWord",
+                url: "change-password",
+                defaults: new
+                {
+                    controller = "Account",
+                    action = "ChangePassword"
+                }
+            );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Account", action = "Login", id = UrlParameter.Optional }

@@ -215,5 +215,10 @@ namespace Web.Repositories.TaiKhoanRepository
             _db.SaveChanges();
             return true;
         }
+        public void Update(TaiKhoan account)
+        {
+            _db.Entry(account).State = EntityState.Modified;
+            _db.SaveChanges();
+        }
     }
 }

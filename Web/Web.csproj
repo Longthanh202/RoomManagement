@@ -323,6 +323,7 @@
     <Compile Include="Models\VaiTroQuyen.cs">
       <DependentUpon>QuanLyPhongTroModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ViewModel\ChangePasswordViewModel.cs" />
     <Compile Include="Models\ViewModel\RegisterOwnerViewModel.cs" />
     <Compile Include="Models\ViewModel\MemberPortalViewModels.cs" />
     <Compile Include="Models\Xe.cs">
@@ -411,6 +412,7 @@
     <Content Include="Views\Employee\Index.cshtml" />
     <Content Include="Views\Owner\Index.cshtml" />
     <Content Include="Views\Resident\Index.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

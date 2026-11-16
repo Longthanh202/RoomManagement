@@ -62,6 +62,7 @@ namespace Web.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public ActionResult Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
@@ -72,6 +73,7 @@ namespace Web.Controllers
             var account = _taiKhoanService.AuthenticateAccount(
                 model.TenDangNhap,
                 model.MatKhau);
+
             if (account == null)
             {
                 ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không chính xác.");
@@ -80,6 +82,15 @@ namespace Web.Controllers
 
             FormsAuthentication.SetAuthCookie(account.TenDangNhap, false);
 
+            // Nhân viên và cư dân phải đổi mật khẩu ở lần đăng nhập đầu tiên
+            if ((account.LoaiTaiKhoan == "NhanVien" ||
+                 account.LoaiTaiKhoan == "CuDan") &&
+                account.YeuCauDoiMatKhau == true)
+            {
+                return RedirectToAction("ChangePassword", "Account");
+            }
+
+            // Xử lý tài khoản chủ trọ
             if (account.LoaiTaiKhoan == "ChuTro" &&
                 !_taiKhoanService.HasActiveOwnerProfile(account.Email))
             {
@@ -101,6 +112,7 @@ namespace Web.Controllers
                 ? (ActionResult)RedirectToAction("Index", "Employee")
                 : RedirectToAction("Index", "Resident");
         }
+
 
         [Authorize]
         [HttpGet]
@@ -245,6 +257,56 @@ namespace Web.Controllers
 
             FormsAuthentication.SignOut();
             return RedirectToAction("Login");
+        }
+
+        [Authorize]
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string username = User.Identity.Name;
+
+            bool result = _taiKhoanService.ChangePassword(
+                username,
+                model.MatKhauCu,
+                model.MatKhauMoi
+            );
+
+            if (!result)
+            {
+                ModelState.AddModelError("", "Mật khẩu hiện tại không chính xác.");
+                return View(model);
+            }
+
+            var account = _taiKhoanService.GetActiveAccount(username);
+            if (account == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            switch (account.LoaiTaiKhoan)
+            {
+                case "NhanVien":
+                    return RedirectToAction("Index", "Employee");
+
+                case "CuDan":
+                    return RedirectToAction("Index", "Resident");
+
+                default:
+                    FormsAuthentication.SignOut();
+                    return RedirectToAction("Login");
+            }
         }
     }
 }

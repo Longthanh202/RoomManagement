@@ -25,5 +25,8 @@ namespace Web.Services.TaiKhoanService
         string CompleteOwnerProfile(string username, CompleteOwnerProfileViewModel model);
 
         bool MarkNotificationRead(string username, long recipientId);
+        bool ChangePassword(string username, string oldPassword, string newPassword);
+
+        TaiKhoan GetActiveAccount(string username);
     }
 }
