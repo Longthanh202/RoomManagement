@@ -1,0 +1,747 @@
+﻿@using System.Linq
+@using System.Collections.Generic
+@model Web.Models.ViewModel.OwnerDashboardViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Tổng quan | RoomCare";
+    var roomStatuses = new Dictionary<string, string>
+    {
+        { "Trong", "Phòng trống" },
+        { "DangThue", "Đang thuê" },
+        { "DaDat", "Đã đặt" },
+        { "DangSuaChua", "Đang sửa chữa" },
+        { "NgungHoatDong", "Ngừng hoạt động" }
+    };
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c35" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
+</head>
+<body class="rc-dashboard rc-owner-app">
+    <div class="rc-app-shell">
+        <aside class="rc-sidebar" id="ownerSidebar" aria-label="Menu quản lý">
+            <a class="rc-brand rc-sidebar-brand" href="@Url.Action("Index", "Owner")">
+                <span class="rc-brand-mark" aria-hidden="true">R</span>
+                <span>Room<span>Care</span></span>
+            </a>
+            <span class="rc-sidebar-caption">KHÔNG GIAN QUẢN LÝ</span>
+            <nav class="rc-sidebar-nav">
+                <button class="is-active" type="button" data-panel-target="overview"><span>⌂</span>Tổng quan</button>
+                <button type="button" data-panel-target="properties"><span>▦</span>Khu trọ & phòng</button>
+                <button type="button" data-panel-target="residents"><span>♧</span>Cư dân</button>
+                <button type="button" data-panel-target="employees"><span>♙</span>Nhân viên</button>
+                <button type="button" data-panel-target="contracts"><span>▤</span>Hợp đồng</button>
+                <button type="button" data-panel-target="occupancy"><span>◷</span>Lịch sử cư trú</button>
+                <button type="button" data-panel-target="services"><span>◇</span>Dịch vụ & giá</button>
+            </nav>
+            <div class="rc-sidebar-bottom">
+                <span class="rc-sidebar-caption">ROOMCARE · 2026</span>
+                <p>Chăm sóc nơi an cư</p>
+            </div>
+        </aside>
+
+        <div class="rc-app-main">
+            <header class="rc-app-header">
+                <button class="rc-mobile-menu" type="button" id="sidebarToggle" aria-label="Mở menu" aria-controls="ownerSidebar">☰</button>
+                <div class="rc-header-title">
+                    <span class="rc-header-kicker">ROOMCARE / CHỦ TRỌ</span>
+                    <strong>Xin chào, @Model.HoTenChuTro</strong>
+                </div>
+                <div class="rc-header-actions">
+                    <button class="rc-notification-button" type="button" data-toggle="modal" data-target="#notificationsModal" aria-label="Thông báo">
+                        ♧
+                        @if (Model.SoThongBaoChuaDoc > 0)
+                        {
+                            <span class="rc-notification-badge">@Model.SoThongBaoChuaDoc</span>
+                        }
+                    </button>
+                    <span class="rc-user-avatar" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.HoTenChuTro) ? "C" : Model.HoTenChuTro.Substring(0, 1).ToUpper())</span>
+                    <span class="rc-user-name">@Model.HoTenChuTro</span>
+                    @using (Html.BeginRouteForm("Logout", new { }, FormMethod.Post, new { @class = "rc-logout-form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button class="rc-logout" type="submit">Đăng xuất</button>
+                    }
+                </div>
+            </header>
+
+            <main class="rc-app-content">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="rc-alert rc-alert-success" role="status">@TempData["Success"]</div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="rc-alert rc-alert-error" role="alert">@TempData["Error"]</div>
+                }
+
+                <section class="rc-workspace-panel is-active" id="panel-overview">
+                    <div class="rc-page-heading">
+                        <div>
+                            <span class="rc-eyebrow">BẢNG ĐIỀU KHIỂN</span>
+                            <h1>Tổng quan hoạt động</h1>
+                            <p>Theo dõi nhanh tình hình khu trọ, phòng và thành viên của bạn.</p>
+                        </div>
+                        <button class="btn rc-btn-primary" type="button" data-toggle="modal" data-target="#createPropertyModal">＋ Thêm khu trọ</button>
+                    </div>
+                    <div class="rc-stat-grid rc-owner-stats">
+                        <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-green">⌂</span><div><span class="rc-stat-label">Khu trọ</span><strong>@Model.SoKhuTro</strong></div><span class="rc-stat-note">đang quản lý</span></article>
+                        <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-blue">▦</span><div><span class="rc-stat-label">Tổng số phòng</span><strong>@Model.SoPhong</strong></div><span class="rc-stat-note">mọi khu trọ</span></article>
+                        <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-orange">⌂</span><div><span class="rc-stat-label">Phòng trống</span><strong>@Model.SoPhongTrong</strong></div><span class="rc-stat-note">sẵn sàng cho thuê</span></article>
+                        <article class="rc-stat-card"><span class="rc-stat-icon rc-icon-purple">♙</span><div><span class="rc-stat-label">Cư dân</span><strong>@Model.SoCuDan</strong></div><span class="rc-stat-note">đã ghi nhận</span></article>
+                    </div>
+
+                    <div class="rc-overview-grid">
+                        <section class="rc-surface">
+                            <div class="rc-section-heading">
+                                <div><span class="rc-eyebrow">CẦN THEO DÕI</span><h2>Hợp đồng chờ xử lý</h2></div>
+                                <button class="rc-text-button" type="button" data-panel-target="contracts">Xem tất cả →</button>
+                            </div>
+                            @{
+                                var pendingContracts = Model.HopDong.Where(x => x.TrangThai == "ChoDuyet").Take(4).ToList();
+                            }
+                            @if (pendingContracts.Count == 0)
+                            {
+                                <div class="rc-empty-state"><strong>Không có hợp đồng chờ duyệt</strong><span>Hợp đồng mới sẽ xuất hiện ở đây.</span></div>
+                            }
+                            else
+                            {
+                                foreach (var contract in pendingContracts)
+                                {
+                                    <div class="rc-compact-row">
+                                        <span class="rc-person-avatar rc-person-avatar-blue">@(string.IsNullOrWhiteSpace(contract.CuDan.HoTen) ? "C" : contract.CuDan.HoTen.Substring(0, 1).ToUpper())</span>
+                                        <div><strong>@contract.CuDan.HoTen</strong><span>@contract.Phong.Tang.DayTro.KhuTro.TenKhuTro · @contract.Phong.MaPhong</span></div>
+                                        <span class="rc-status-pill is-pending">Chờ duyệt</span>
+                                    </div>
+                                }
+                            }
+                        </section>
+                        <section class="rc-surface">
+                            <div class="rc-section-heading">
+                                <div><span class="rc-eyebrow">TÀI SẢN</span><h2>Tình trạng phòng</h2></div>
+                                <button class="rc-text-button" type="button" data-panel-target="properties">Quản lý phòng →</button>
+                            </div>
+                            <div class="rc-occupancy-summary">
+                                <div><strong>@Model.SoPhongTrong</strong><span>Phòng trống</span></div>
+                                <div><strong>@(Model.SoPhong - Model.SoPhongTrong)</strong><span>Đã sử dụng</span></div>
+                                <div><strong>@Model.SoPhong</strong><span>Tổng phòng</span></div>
+                            </div>
+                            <div class="rc-occupancy-bar" role="img" aria-label="Tỷ lệ phòng đang sử dụng">
+                                <span style="width: @(Model.SoPhong == 0 ? 0 : (100 * (Model.SoPhong - Model.SoPhongTrong) / Model.SoPhong))%"></span>
+                            </div>
+                            <p class="rc-form-hint">Tỷ lệ sử dụng được tính trên tổng số phòng hiện có.</p>
+                        </section>
+                    </div>
+
+                    <section class="rc-surface rc-quick-actions">
+                        <div class="rc-section-heading"><div><span class="rc-eyebrow">THAO TÁC NHANH</span><h2>Bắt đầu quản lý</h2></div></div>
+                        <div class="rc-quick-action-grid">
+                            <button type="button" data-toggle="modal" data-target="#createPropertyModal"><span>⌂</span><strong>Tạo khu trọ</strong></button>
+                            <button type="button" data-toggle="modal" data-target="#createDayModal"><span>▤</span><strong>Tạo dãy trọ</strong></button>
+                            <button type="button" data-toggle="modal" data-target="#createRoomModal"><span>▦</span><strong>Tạo phòng</strong></button>
+                            <button type="button" data-toggle="modal" data-target="#createResidentModal"><span>♧</span><strong>Thêm cư dân</strong></button>
+                        </div>
+                    </section>
+                </section>
+
+                <section class="rc-workspace-panel" id="panel-properties">
+                    <div class="rc-page-heading">
+                        <div><span class="rc-eyebrow">TÀI SẢN</span><h1>Khu trọ & phòng</h1><p>Quản lý cấu trúc khu trọ theo khu, dãy, tầng và phòng.</p></div>
+                        <div class="rc-heading-actions">
+                            <button class="btn rc-btn-secondary" type="button" data-toggle="modal" data-target="#createFloorModal">＋ Thêm tầng</button>
+                            <button class="btn rc-btn-secondary" type="button" data-toggle="modal" data-target="#createRoomModal">＋ Thêm phòng</button>
+                            <button class="btn rc-btn-primary" type="button" data-toggle="modal" data-target="#createPropertyModal">＋ Thêm khu trọ</button>
+                        </div>
+                    </div>
+                    <section class="rc-surface">
+                        @if (Model.KhuTro.Count == 0)
+                        {
+                            <div class="rc-empty-state"><strong>Bạn chưa có khu trọ</strong><span>Tạo khu trọ đầu tiên để bắt đầu thêm dãy, tầng và phòng.</span><button class="btn rc-btn-primary" type="button" data-toggle="modal" data-target="#createPropertyModal">Tạo khu trọ</button></div>
+                        }
+                        else
+                        {
+                            <div class="rc-property-grid">
+                                @foreach (var khu in Model.KhuTro)
+                                {
+                                    var propertyRooms = Model.Phong.Where(x => x.Tang.DayTro.KhuTro.Id == khu.Id).ToList();
+                                    <article class="rc-property-card">
+                                        <div class="rc-property-card-top"><span class="rc-panel-icon">⌂</span><span class="rc-status-pill @(khu.TrangThai ? "is-active" : "is-inactive")">@(khu.TrangThai ? "Đang hoạt động" : "Tạm ngưng")</span></div>
+                                        <h2>@khu.TenKhuTro</h2>
+                                        <p>@(string.IsNullOrWhiteSpace(khu.DiaChi) ? "Chưa cập nhật địa chỉ" : khu.DiaChi)</p>
+                                        <div class="rc-property-meta"><span>@khu.DayTro.Count dãy</span><span>@propertyRooms.Count phòng</span><span>@propertyRooms.Count(x => x.TrangThai == "Trong") phòng trống</span></div>
+                                    </article>
+                                }
+                            </div>
+                        }
+                    </section>
+                    <section class="rc-surface">
+                        <div class="rc-section-heading"><div><span class="rc-eyebrow">DANH SÁCH</span><h2>Phòng trong hệ thống</h2></div></div>
+                        @if (Model.Phong.Count == 0)
+                        {
+                            <div class="rc-empty-state"><strong>Chưa có phòng</strong><span>Thêm dãy và tầng trước khi tạo phòng.</span></div>
+                        }
+                        else
+                        {
+                            <div class="rc-table-wrap">
+                                <table class="rc-data-table">
+                                    <thead><tr><th>Phòng</th><th>Khu trọ / dãy / tầng</th><th>Sức chứa</th><th>Diện tích</th><th>Giá niêm yết</th><th>Trạng thái</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var room in Model.Phong)
+                                        {
+                                            <tr>
+                                                <td><strong>@(string.IsNullOrWhiteSpace(room.TenPhong) ? room.MaPhong : room.TenPhong)</strong><small>@room.MaPhong</small></td>
+                                                <td>@room.Tang.DayTro.KhuTro.TenKhuTro<small>@room.Tang.DayTro.TenDayTro · Tầng @room.Tang.SoTang</small></td>
+                                                <td>@room.SoNguoiToiDa người</td>
+                                                <td>@(room.DienTich.HasValue ? room.DienTich.Value.ToString("N1") + " m²" : "—")</td>
+                                                <td>@room.GiaThue.ToString("N0") ₫</td>
+                                                <td><span class="rc-status-pill @(room.TrangThai == "Trong" ? "is-active" : "is-pending")">@(roomStatuses.ContainsKey(room.TrangThai) ? roomStatuses[room.TrangThai] : room.TrangThai)</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </section>
+                </section>
+
+                <section class="rc-workspace-panel" id="panel-residents">
+                    <div class="rc-page-heading"><div><span class="rc-eyebrow">THÀNH VIÊN</span><h1>Quản lý cư dân</h1><p>Hồ sơ, tài khoản, thành viên phòng và thông tin liên hệ.</p></div><button class="btn rc-btn-primary" type="button" data-toggle="modal" data-target="#createResidentModal">＋ Thêm cư dân</button></div>
+                    <section class="rc-surface">
+                        @if (Model.CuDan.Count == 0)
+                        {
+                            <div class="rc-empty-state"><strong>Chưa có cư dân</strong><span>Tạo tài khoản cư dân và hợp đồng cho phòng còn trống.</span></div>
+                        }
+                        else
+                        {
+                            <div class="rc-table-wrap">
+                                <table class="rc-data-table">
+                                    <thead><tr><th>Cư dân</th><th>Liên hệ</th><th>Tài khoản</th><th>Phòng hiện tại</th><th>Trạng thái</th><th></th></tr></thead>
+                                    <tbody>
+                                        @foreach (var resident in Model.CuDan)
+                                        {
+                                            var activeContract = Model.HopDong.FirstOrDefault(x =>
+                                                x.TrangThai == "DangHieuLuc" &&
+                                                (x.CuDanDaiDienId == resident.Id ||
+                                                 x.HopDongThanhVien.Any(m =>
+                                                     m.CuDanId == resident.Id && m.TrangThai)));
+                                            <tr>
+                                                <td><strong>@resident.HoTen</strong><small>@(string.IsNullOrWhiteSpace(resident.SoCCCD) ? "Chưa có CCCD" : "CCCD " + resident.SoCCCD)</small></td>
+                                                <td>@(resident.SoDienThoai ?? "—")<small>@(resident.Email ?? "—")</small></td>
+                                                <td>@(resident.TaiKhoan == null ? "Chưa cấp" : resident.TaiKhoan.TenDangNhap)</td>
+                                                <td>@(activeContract == null ? "Chưa cư trú" : activeContract.Phong.MaPhong)<small>@(activeContract == null ? "" : activeContract.Phong.Tang.DayTro.KhuTro.TenKhuTro)</small></td>
+                                                <td><span class="rc-status-pill @(resident.TrangThai ? "is-active" : "is-inactive")">@(resident.TrangThai ? "Hoạt động" : "Tạm ngưng")</span></td>
+                                                <td><button class="rc-text-button rc-resident-detail" type="button" data-toggle="modal" data-target="#residentDetailsModal" data-name="@resident.HoTen" data-phone="@(resident.SoDienThoai ?? "Chưa cập nhật")" data-email="@(resident.Email ?? "Chưa cập nhật")" data-id="@(resident.SoCCCD ?? "Chưa cập nhật")" data-address="@(resident.DiaChiThuongTru ?? "Chưa cập nhật")" data-room="@(activeContract == null ? "Chưa có phòng đang thuê" : activeContract.Phong.MaPhong + " · " + activeContract.Phong.Tang.DayTro.KhuTro.TenKhuTro)">Chi tiết</button></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </section>
+                    <section class="rc-surface">
+                        <div class="rc-section-heading"><div><span class="rc-eyebrow">SỨC CHỨA</span><h2>Thành viên theo hợp đồng</h2><p>Thêm hoặc kết thúc cư trú của thành viên trong phòng.</p></div></div>
+                        @if (!Model.HopDong.Any(x => x.TrangThai == "DangHieuLuc"))
+                        {
+                            <div class="rc-empty-state"><strong>Chưa có hợp đồng hiệu lực</strong><span>Hợp đồng sẽ xuất hiện sau khi được duyệt.</span></div>
+                        }
+                        else
+                        {
+                            foreach (var contract in Model.HopDong.Where(x => x.TrangThai == "DangHieuLuc"))
+                            {
+                                <article class="rc-contract-members">
+                                    <div class="rc-contract-members-heading"><div><strong>Phòng @contract.Phong.MaPhong</strong><span>@contract.Phong.Tang.DayTro.KhuTro.TenKhuTro · @contract.HopDongThanhVien.Count(x => x.TrangThai)/@contract.Phong.SoNguoiToiDa người</span></div><button class="btn rc-btn-secondary" type="button" data-toggle="modal" data-target="#addMemberModal" data-contract-id="@contract.Id" data-room-name="@contract.Phong.MaPhong">＋ Thêm thành viên</button></div>
+                                    <div class="rc-member-list">
+                                        @foreach (var member in contract.HopDongThanhVien.Where(x => x.TrangThai))
+                                        {
+                                            <div class="rc-member-row"><div><strong>@member.CuDan.HoTen</strong><span>@(member.LaNguoiDaiDien ? "Người đại diện" : "Thành viên") · Từ @member.NgayBatDau.ToString("dd/MM/yyyy")</span></div>
+                                                @if (!member.LaNguoiDaiDien)
+                                                {
+                                                    using (Html.BeginRouteForm("OwnerEndRoomMember", new { }, FormMethod.Post, new { @class = "rc-inline-form", onsubmit = "return confirm('Kết thúc cư trú của thành viên này?');" }))
+                                                    {
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="HopDongThanhVienId" value="@member.Id" />
+                                                        <button class="rc-text-button rc-danger-button" type="submit">Kết thúc cư trú</button>
+                                                    }
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </article>
+                            }
+                        }
+                    </section>
+                </section>
+
+                <section class="rc-workspace-panel" id="panel-employees">
+                    <div class="rc-page-heading"><div><span class="rc-eyebrow">ĐỘI NGŨ</span><h1>Quản lý nhân viên</h1><p>Tài khoản, vai trò và phân công nhân viên theo khu trọ.</p></div><button class="btn rc-btn-primary" type="button" data-toggle="modal" data-target="#createEmployeeModal">＋ Thêm nhân viên</button></div>
+                    <section class="rc-surface">
+                        @if (Model.NhanVien.Count == 0)
+                        {
+                            <div class="rc-empty-state"><strong>Chưa có nhân viên</strong><span>Tạo tài khoản nhân viên rồi phân công phụ trách khu trọ.</span></div>
+                        }
+                        else
+                        {
+                            <div class="rc-table-wrap">
+                                <table class="rc-data-table">
+                                    <thead><tr><th>Nhân viên</th><th>Chức vụ</th><th>Tài khoản</th><th>Khu trọ phụ trách</th><th>Trạng thái</th><th></th></tr></thead>
+                                    <tbody>
+                                        @foreach (var employee in Model.NhanVien)
+                                        {
+                                            var assignments = employee.PhanCongNhanVien.Where(x => !x.NgayKetThuc.HasValue && x.NgayBatDau <= DateTime.Today).ToList();
+                                            <tr>
+                                                <td><strong>@employee.HoTen</strong><small>@employee.MaNhanVien · @employee.SoDienThoai</small></td>
+                                                <td>@(employee.ChucVu ?? "Nhân viên")</td>
+                                                <td>@employee.TaiKhoan.TenDangNhap</td>
+                                                <td>@(assignments.Count == 0 ? "Chưa phân công" : string.Join(", ", assignments.Select(x => x.KhuTro.TenKhuTro)))</td>
+                                                <td><span class="rc-status-pill @(employee.TrangThai && employee.TaiKhoan.TrangThai ? "is-active" : "is-inactive")">@(employee.TrangThai && employee.TaiKhoan.TrangThai ? "Hoạt động" : "Tạm ngưng")</span></td>
+                                                <td><button class="rc-text-button" type="button" data-toggle="modal" data-target="#assignEmployeeModal" data-employee-id="@employee.Id" data-employee-name="@employee.HoTen">Phân công</button></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </section>
+                </section>
+
+                <section class="rc-workspace-panel" id="panel-contracts">
+                    <div class="rc-page-heading"><div><span class="rc-eyebrow">THUÊ PHÒNG</span><h1>Hợp đồng cư trú</h1><p>Xem điều khoản, thành viên và trạng thái hợp đồng.</p></div><button class="btn rc-btn-primary" type="button" data-toggle="modal" data-target="#createResidentModal">＋ Tạo hợp đồng</button></div>
+                    <section class="rc-surface">
+                        @if (Model.HopDong.Count == 0)
+                        {
+                            <div class="rc-empty-state"><strong>Chưa có hợp đồng</strong><span>Tạo hợp đồng mới từ hồ sơ cư dân và phòng trống.</span></div>
+                        }
+                        else
+                        {
+                            <div class="rc-table-wrap">
+                                <table class="rc-data-table">
+                                    <thead><tr><th>Mã hợp đồng / đại diện</th><th>Phòng</th><th>Thời hạn</th><th>Giá thuê / cọc</th><th>Thành viên</th><th>Trạng thái / thao tác</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var contract in Model.HopDong)
+                                        {
+                                            <tr>
+                                                <td><strong>@contract.MaHopDong</strong><small>@contract.CuDan.HoTen</small></td>
+                                                <td>@contract.Phong.MaPhong<small>@contract.Phong.Tang.DayTro.KhuTro.TenKhuTro</small></td>
+                                                <td>@contract.NgayBatDau.ToString("dd/MM/yyyy")<small>đến @contract.NgayKetThuc.ToString("dd/MM/yyyy")</small></td>
+                                                <td>@contract.GiaThue.ToString("N0") ₫<small>Cọc @contract.TienCoc.ToString("N0") ₫</small></td>
+                                                <td>@contract.HopDongThanhVien.Count(x => x.TrangThai) người</td>
+                                                <td>
+                                                    <span class="rc-status-pill @(contract.TrangThai == "DangHieuLuc" ? "is-active" : contract.TrangThai == "ChoDuyet" ? "is-pending" : "is-inactive")">@contract.TrangThai</span>
+                                                    <button class="rc-text-button rc-contract-detail" type="button" data-toggle="modal" data-target="#contractDetailsModal" data-code="@contract.MaHopDong" data-resident="@contract.CuDan.HoTen" data-room="@contract.Phong.MaPhong" data-location="@contract.Phong.Tang.DayTro.KhuTro.TenKhuTro" data-start="@contract.NgayBatDau.ToString("dd/MM/yyyy")" data-end="@contract.NgayKetThuc.ToString("dd/MM/yyyy")" data-rent="@contract.GiaThue.ToString("N0") ₫" data-deposit="@contract.TienCoc.ToString("N0") ₫" data-payment="@contract.NgayThanhToan" data-members="@(string.Join(", ", contract.HopDongThanhVien.Where(x => x.TrangThai).Select(x => x.CuDan.HoTen)))" data-terms="@(contract.DieuKhoan ?? "Chưa có điều khoản bổ sung")">Chi tiết</button>
+                                                    @if (contract.TrangThai == "ChoDuyet")
+                                                    {
+                                                        using (Html.BeginRouteForm("OwnerUpdateContract", new { }, FormMethod.Post, new { @class = "rc-contract-actions" }))
+                                                        {
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="HopDongId" value="@contract.Id" /><input type="hidden" name="TrangThai" value="DangHieuLuc" />
+                                                            <button class="rc-text-button" type="submit">Duyệt</button>
+                                                        }
+                                                        using (Html.BeginRouteForm("OwnerUpdateContract", new { }, FormMethod.Post, new { @class = "rc-contract-actions", onsubmit = "return confirm('Từ chối hợp đồng này?');" }))
+                                                        {
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="HopDongId" value="@contract.Id" /><input type="hidden" name="TrangThai" value="TuChoi" />
+                                                            <button class="rc-text-button rc-danger-button" type="submit">Từ chối</button>
+                                                        }
+                                                    }
+                                                    else if (contract.TrangThai == "DangHieuLuc")
+                                                    {
+                                                        using (Html.BeginRouteForm("OwnerUpdateContract", new { }, FormMethod.Post, new { @class = "rc-contract-actions", onsubmit = "return confirm('Kết thúc hợp đồng và cập nhật lịch sử cư trú?');" }))
+                                                        {
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="HopDongId" value="@contract.Id" /><input type="hidden" name="TrangThai" value="DaKetThuc" />
+                                                            <button class="rc-text-button rc-danger-button" type="submit">Kết thúc</button>
+                                                        }
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </section>
+                </section>
+
+                <section class="rc-workspace-panel" id="panel-occupancy">
+                    <div class="rc-page-heading"><div><span class="rc-eyebrow">HỒ SƠ CƯ TRÚ</span><h1>Lịch sử cư trú</h1><p>Theo dõi thời gian vào ở, rời phòng và hợp đồng liên quan.</p></div></div>
+                    <section class="rc-surface">
+                        @if (Model.LichSuCuTru.Count == 0)
+                        {
+                            <div class="rc-empty-state"><strong>Chưa có lịch sử cư trú</strong><span>Lịch sử được ghi nhận khi hợp đồng được duyệt.</span></div>
+                        }
+                        else
+                        {
+                            <div class="rc-table-wrap">
+                                <table class="rc-data-table">
+                                    <thead><tr><th>Cư dân</th><th>Phòng</th><th>Hợp đồng</th><th>Ngày vào</th><th>Ngày ra</th><th>Ghi chú</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var history in Model.LichSuCuTru)
+                                        {
+                                            <tr><td><strong>@history.CuDan.HoTen</strong></td><td>@history.Phong.MaPhong<small>@history.Phong.Tang.DayTro.KhuTro.TenKhuTro</small></td><td>@(history.HopDong == null ? "—" : history.HopDong.MaHopDong)</td><td>@history.NgayVao.ToString("dd/MM/yyyy")</td><td>@(history.NgayRa.HasValue ? history.NgayRa.Value.ToString("dd/MM/yyyy") : "Đang cư trú")</td><td>@(history.LyDo ?? "—")</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </section>
+                </section>
+
+                <section class="rc-workspace-panel" id="panel-services">
+                    <div class="rc-page-heading"><div><span class="rc-eyebrow">DỊCH VỤ</span><h1>Dịch vụ & bảng giá</h1><p>Quản lý danh mục và lịch sử giá theo từng khu trọ.</p></div><div class="rc-heading-actions"><button class="btn rc-btn-secondary" type="button" data-toggle="modal" data-target="#servicePriceModal">＋ Cập nhật giá</button><button class="btn rc-btn-primary" type="button" data-toggle="modal" data-target="#createServiceModal">＋ Thêm dịch vụ</button></div></div>
+                    <div class="rc-service-grid">
+                        @foreach (var service in Model.DichVu)
+                        {
+                            var servicePrices = Model.BangGiaDichVu.Where(x => x.DichVuId == service.Id).ToList();
+                            <article class="rc-surface rc-service-card">
+                                <div class="rc-service-card-heading"><span class="rc-panel-icon rc-panel-icon-blue">◇</span><div><h2>@service.TenDichVu</h2><span>@service.MaDichVu · @(service.DonViTinh ?? "Đơn vị")</span></div></div>
+                                <p>@(string.IsNullOrWhiteSpace(service.MoTa) ? "Phương thức tính: " + service.LoaiTinhPhi : service.MoTa)</p>
+                                @if (servicePrices.Count == 0)
+                                {
+                                    <div class="rc-service-no-price">Chưa thiết lập giá cho khu trọ.</div>
+                                }
+                                else
+                                {
+                                    <div class="rc-service-price-list">
+                                        @foreach (var price in servicePrices)
+                                        {
+                                            <div><span>@price.KhuTro.TenKhuTro<small>Từ @price.TuNgay.ToString("dd/MM/yyyy")@(price.DenNgay.HasValue ? " đến " + price.DenNgay.Value.ToString("dd/MM/yyyy") : "")</small></span><strong>@price.DonGia.ToString("N0") ₫</strong></div>
+                                        }
+                                    </div>
+                                }
+                            </article>
+                        }
+                    </div>
+                </section>
+                <footer class="rc-footer">© @DateTime.Today.Year RoomCare <span>·</span> Chăm sóc nơi an cư</footer>
+            </main>
+        </div>
+    </div>
+    <div class="rc-sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="modal fade rc-modal" id="createPropertyModal" tabindex="-1" role="dialog" aria-labelledby="createPropertyTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">TÀI SẢN</span><h2 id="createPropertyTitle" class="modal-title">Thêm khu trọ</h2><p>Tạo địa điểm kinh doanh mới trong hệ thống.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerCreateKhuTro", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <label for="MaKhuTro">Mã khu trọ</label><input id="MaKhuTro" name="MaKhuTro" class="form-control" maxlength="50" placeholder="Ví dụ: KHU-01" required />
+                    <label for="TenKhuTro">Tên khu trọ</label><input id="TenKhuTro" name="TenKhuTro" class="form-control" maxlength="200" placeholder="Tên dễ nhận biết" required />
+                    <label for="DiaChi">Địa chỉ</label><input id="DiaChi" name="DiaChi" class="form-control" maxlength="500" placeholder="Số nhà, đường, phường..." />
+                    <label for="MoTa">Ghi chú</label><textarea id="MoTa" name="MoTa" class="form-control" rows="3"></textarea>
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Tạo khu trọ</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="createDayModal" tabindex="-1" role="dialog" aria-labelledby="createDayTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">CẤU TRÚC KHU TRỌ</span><h2 id="createDayTitle" class="modal-title">Thêm dãy trọ</h2><p>Chọn khu trọ mà dãy này trực thuộc.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerCreateDayTro", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <label for="DayKhuTroId">Khu trọ</label><select id="DayKhuTroId" name="KhuTroId" class="form-control" required><option value="">Chọn khu trọ</option>@foreach (var khu in Model.KhuTro) { <option value="@khu.Id">@khu.TenKhuTro</option> }</select>
+                    <label for="MaDayTro">Mã dãy</label><input id="MaDayTro" name="MaDayTro" class="form-control" maxlength="50" required />
+                    <label for="TenDayTro">Tên dãy</label><input id="TenDayTro" name="TenDayTro" class="form-control" maxlength="200" required />
+                    <label for="MoTaDay">Ghi chú</label><textarea id="MoTaDay" name="MoTa" class="form-control" rows="2"></textarea>
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Tạo dãy</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="createFloorModal" tabindex="-1" role="dialog" aria-labelledby="createFloorTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">CẤU TRÚC KHU TRỌ</span><h2 id="createFloorTitle" class="modal-title">Thêm tầng</h2><p>Chọn khu và dãy để xác định vị trí của tầng.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerCreateFloor", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <label for="FloorKhuTroId">Khu trọ</label><select id="FloorKhuTroId" class="form-control" required><option value="">Chọn khu trọ</option>@foreach (var khu in Model.KhuTro) { <option value="@khu.Id">@khu.TenKhuTro</option> }</select>
+                    <label for="FloorDayTroId">Dãy trọ</label><select id="FloorDayTroId" name="DayTroId" class="form-control" required><option value="">Chọn dãy trọ</option>@foreach (var day in Model.DayTroOptions) { <option value="@day.Id" data-khu="@day.KhuTroId">@day.TenDayTro</option> }</select>
+                    <label for="SoTang">Số tầng</label><input id="SoTang" name="SoTang" class="form-control" type="number" min="1" max="100" required />
+                    <label for="TenTang">Tên hiển thị</label><input id="TenTang" name="TenTang" class="form-control" maxlength="100" placeholder="Ví dụ: Tầng trệt" />
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Tạo tầng</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="createRoomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">CẤU TRÚC KHU TRỌ</span><h2 id="createRoomTitle" class="modal-title">Thêm phòng</h2><p>Chọn khu, dãy và tầng trước khi nhập thông tin phòng.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerCreateRoom", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <label for="RoomKhuTroId">Khu trọ</label><select id="RoomKhuTroId" class="form-control" required><option value="">Chọn khu trọ</option>@foreach (var khu in Model.KhuTro) { <option value="@khu.Id">@khu.TenKhuTro</option> }</select>
+                    <label for="RoomDayTroId">Dãy trọ</label><select id="RoomDayTroId" class="form-control" required><option value="">Chọn dãy trọ</option>@foreach (var day in Model.DayTroOptions) { <option value="@day.Id" data-khu="@day.KhuTroId">@day.TenDayTro</option> }</select>
+                    <label for="TangId">Tầng</label><select id="TangId" name="TangId" class="form-control" required><option value="">Chọn tầng</option>@foreach (var floor in Model.TangOptions) { <option value="@floor.Id" data-day="@floor.DayTroId">@floor.DayTro.TenDayTro · Tầng @floor.SoTang</option> }</select>
+                    <div class="rc-modal-form-row"><div><label for="MaPhong">Mã phòng</label><input id="MaPhong" name="MaPhong" class="form-control" maxlength="50" required /></div><div><label for="TenPhong">Tên phòng</label><input id="TenPhong" name="TenPhong" class="form-control" maxlength="100" /></div></div>
+                    <div class="rc-modal-form-row"><div><label for="DienTich">Diện tích (m²)</label><input id="DienTich" name="DienTich" class="form-control" type="number" min="0.01" step="0.01" /></div><div><label for="SoNguoiToiDa">Sức chứa</label><input id="SoNguoiToiDa" name="SoNguoiToiDa" class="form-control" type="number" min="1" max="100" value="4" required /></div></div>
+                    <label for="GiaThue">Giá thuê niêm yết (₫/tháng)</label><input id="GiaThue" name="GiaThue" class="form-control" type="number" min="0" step="1000" value="0" required />
+                    <label for="TrangThai">Tình trạng</label><select id="TrangThai" name="TrangThai" class="form-control" required><option value="Trong">Phòng trống</option><option value="DangThue">Đang thuê</option><option value="DaDat">Đã đặt</option><option value="DangSuaChua">Đang sửa chữa</option><option value="NgungHoatDong">Ngừng hoạt động</option></select>
+                    <label for="MoTaPhong">Ghi chú</label><textarea id="MoTaPhong" name="MoTa" class="form-control" rows="2"></textarea>
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Tạo phòng</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="createEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="createEmployeeTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">ĐỘI NGŨ</span><h2 id="createEmployeeTitle" class="modal-title">Thêm nhân viên</h2><p>Tạo tài khoản đăng nhập và hồ sơ nhân viên.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerCreateEmployee", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="rc-modal-form-row"><div><label for="MaNhanVien">Mã nhân viên</label><input id="MaNhanVien" name="MaNhanVien" class="form-control" maxlength="50" required /></div><div><label for="HoTenNhanVien">Họ tên</label><input id="HoTenNhanVien" name="HoTen" class="form-control" maxlength="200" required /></div></div>
+                    <div class="rc-modal-form-row"><div><label for="TenDangNhapNhanVien">Tên đăng nhập</label><input id="TenDangNhapNhanVien" name="TenDangNhap" class="form-control" minlength="4" maxlength="100" autocomplete="off" required /></div><div><label for="MatKhauNhanVien">Mật khẩu tạm thời</label><input id="MatKhauNhanVien" name="MatKhau" class="form-control" type="password" minlength="10" autocomplete="new-password" required /></div></div>
+                    <div class="rc-modal-form-row"><div><label for="EmailNhanVien">Email</label><input id="EmailNhanVien" name="Email" class="form-control" type="email" maxlength="150" /></div><div><label for="SoDienThoaiNhanVien">Số điện thoại</label><input id="SoDienThoaiNhanVien" name="SoDienThoai" class="form-control" type="tel" maxlength="20" /></div></div>
+                    <label for="MaVaiTro">Vai trò</label><select id="MaVaiTro" name="MaVaiTro" class="form-control" required><option value="QUANLY">Quản lý</option><option value="KETOAN">Kế toán</option><option value="KYTHUAT">Kỹ thuật</option><option value="LETAN">Lễ tân</option></select>
+                    <label for="KhuTroNhanVien">Khu trọ phân công ban đầu</label><select id="KhuTroNhanVien" name="KhuTroId" class="form-control"><option value="">Chưa phân công</option>@foreach (var khu in Model.KhuTro) { <option value="@khu.Id">@khu.TenKhuTro</option> }</select>
+                    <label for="ChucVu">Chức vụ hiển thị</label><input id="ChucVu" name="ChucVu" class="form-control" maxlength="100" />
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Tạo tài khoản</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="createResidentModal" tabindex="-1" role="dialog" aria-labelledby="createResidentTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">CƯ DÂN & HỢP ĐỒNG</span><h2 id="createResidentTitle" class="modal-title">Tạo hợp đồng cư trú</h2><p>Thông tin đăng nhập sẽ được dùng tại trang RoomCare dành cho cư dân.</p></div>
+            <div class="modal-body">
+                @if (Model.PhongTrongOptions.Count == 0)
+                {
+                    <p class="rc-form-hint">Cần có ít nhất một phòng trống để tạo hợp đồng.</p>
+                }
+                @using (Html.BeginRouteForm("OwnerCreateResident", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <label for="PhongId">Phòng trống</label><select id="PhongId" name="PhongId" class="form-control" required><option value="">Chọn phòng</option>@foreach (var room in Model.PhongTrongOptions) { <option value="@room.Id">@room.Tang.DayTro.KhuTro.TenKhuTro · @room.Tang.DayTro.TenDayTro · @room.MaPhong · @room.GiaThue.ToString("N0") ₫</option> }</select>
+                    <div class="rc-modal-form-row"><div><label for="HoTenCuDan">Họ tên cư dân</label><input id="HoTenCuDan" name="HoTen" class="form-control" maxlength="200" required /></div><div><label for="SoCCCD">Số CCCD</label><input id="SoCCCD" name="SoCCCD" class="form-control" maxlength="30" /></div></div>
+                    <div class="rc-modal-form-row"><div><label for="TenDangNhapCuDan">Tên đăng nhập</label><input id="TenDangNhapCuDan" name="TenDangNhap" class="form-control" minlength="4" maxlength="100" autocomplete="off" required /></div><div><label for="MatKhauCuDan">Mật khẩu tạm thời</label><input id="MatKhauCuDan" name="MatKhau" class="form-control" type="password" minlength="10" autocomplete="new-password" required /></div></div>
+                    <div class="rc-modal-form-row"><div><label for="EmailCuDan">Email</label><input id="EmailCuDan" name="Email" class="form-control" type="email" maxlength="150" /></div><div><label for="SoDienThoaiCuDan">Số điện thoại</label><input id="SoDienThoaiCuDan" name="SoDienThoai" class="form-control" type="tel" maxlength="20" /></div></div>
+                    <div class="rc-modal-form-row"><div><label for="NgayBatDau">Ngày bắt đầu</label><input id="NgayBatDau" name="NgayBatDau" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required /></div><div><label for="NgayKetThuc">Ngày kết thúc</label><input id="NgayKetThuc" name="NgayKetThuc" class="form-control" type="date" value="@DateTime.Today.AddYears(1).ToString("yyyy-MM-dd")" required /></div></div>
+                    <div class="rc-modal-form-row"><div><label for="GiaThueCuDan">Giá thuê (₫/tháng)</label><input id="GiaThueCuDan" name="GiaThue" class="form-control" type="number" min="0" step="1000" required /></div><div><label for="TienCoc">Tiền cọc (₫)</label><input id="TienCoc" name="TienCoc" class="form-control" type="number" min="0" step="1000" required /></div></div>
+                    <label for="NgayThanhToan">Ngày thanh toán hàng tháng</label><input id="NgayThanhToan" name="NgayThanhToan" class="form-control" type="number" min="1" max="31" value="5" required />
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Tạo hợp đồng chờ duyệt</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="assignEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="assignEmployeeTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">ĐỘI NGŨ</span><h2 id="assignEmployeeTitle" class="modal-title">Phân công nhân viên</h2><p id="assignEmployeeDescription">Chọn khu trọ và ngày bắt đầu phụ trách.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerAssignEmployee", new { }, FormMethod.Post, new { @class = "rc-modal-form", id = "assignEmployeeForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="AssignNhanVienId" name="NhanVienId" />
+                    <label for="AssignKhuTroId">Khu trọ</label><select id="AssignKhuTroId" name="KhuTroId" class="form-control" required><option value="">Chọn khu trọ</option>@foreach (var khu in Model.KhuTro) { <option value="@khu.Id">@khu.TenKhuTro</option> }</select>
+                    <label for="AssignNgayBatDau">Ngày bắt đầu</label><input id="AssignNgayBatDau" name="NgayBatDau" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    <label for="AssignGhiChu">Ghi chú</label><textarea id="AssignGhiChu" name="GhiChu" class="form-control" rows="2"></textarea>
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Lưu phân công</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="addMemberModal" tabindex="-1" role="dialog" aria-labelledby="addMemberTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">THÀNH VIÊN PHÒNG</span><h2 id="addMemberTitle" class="modal-title">Thêm thành viên</h2><p id="addMemberDescription">Chọn hồ sơ cư dân chưa có hợp đồng đang hiệu lực.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerAddRoomMember", new { }, FormMethod.Post, new { @class = "rc-modal-form", id = "addRoomMemberForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="MemberHopDongId" name="HopDongId" />
+                    <label for="MemberCuDanId">Cư dân</label><select id="MemberCuDanId" name="CuDanId" class="form-control" required><option value="">Chọn cư dân</option>@foreach (var resident in Model.CuDan.Where(x => !x.HopDong.Any(h => h.CuDanDaiDienId == x.Id && (h.TrangThai == "ChoDuyet" || h.TrangThai == "DangHieuLuc")) && !x.HopDongThanhVien.Any(m => m.TrangThai && (m.HopDong.TrangThai == "ChoDuyet" || m.HopDong.TrangThai == "DangHieuLuc")))) { <option value="@resident.Id">@resident.HoTen @(resident.TaiKhoan == null ? "(chưa có tài khoản)" : "")</option> }</select>
+                    <label for="MemberNgayBatDau">Ngày bắt đầu cư trú</label><input id="MemberNgayBatDau" name="NgayBatDau" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Thêm thành viên</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="servicePriceModal" tabindex="-1" role="dialog" aria-labelledby="servicePriceTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">BẢNG GIÁ</span><h2 id="servicePriceTitle" class="modal-title">Cập nhật giá dịch vụ</h2><p>Đơn giá mới sẽ lưu lịch sử giá cũ theo thời gian hiệu lực.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerSetServicePrice", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <label for="PriceKhuTroId">Khu trọ</label><select id="PriceKhuTroId" name="KhuTroId" class="form-control" required><option value="">Chọn khu trọ</option>@foreach (var khu in Model.KhuTro) { <option value="@khu.Id">@khu.TenKhuTro</option> }</select>
+                    <label for="DichVuId">Dịch vụ</label><select id="DichVuId" name="DichVuId" class="form-control" required><option value="">Chọn dịch vụ</option>@foreach (var service in Model.DichVu) { <option value="@service.Id">@service.TenDichVu · @service.DonViTinh</option> }</select>
+                    <label for="DonGia">Đơn giá (₫)</label><input id="DonGia" name="DonGia" class="form-control" type="number" min="0" step="100" required />
+                    <label for="TuNgay">Ngày áp dụng</label><input id="TuNgay" name="TuNgay" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Lưu giá dịch vụ</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="createServiceModal" tabindex="-1" role="dialog" aria-labelledby="createServiceTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">DANH MỤC</span><h2 id="createServiceTitle" class="modal-title">Thêm dịch vụ</h2><p>Khai báo dịch vụ mới để áp dụng cho các khu trọ.</p></div>
+            <div class="modal-body">
+                @using (Html.BeginRouteForm("OwnerCreateService", new { }, FormMethod.Post, new { @class = "rc-modal-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <label for="MaDichVu">Mã dịch vụ</label><input id="MaDichVu" name="MaDichVu" class="form-control" maxlength="50" placeholder="Ví dụ: NUOC" pattern="[A-Za-z0-9_-]+" required />
+                    <label for="TenDichVu">Tên dịch vụ</label><input id="TenDichVu" name="TenDichVu" class="form-control" maxlength="200" required />
+                    <label for="LoaiTinhPhi">Phương thức tính</label><select id="LoaiTinhPhi" name="LoaiTinhPhi" class="form-control" required><option value="TheoChiSo">Theo chỉ số (điện, nước)</option><option value="CoDinh">Cố định</option><option value="TheoNguoi">Theo người</option><option value="TheoXe">Theo xe</option><option value="TheoSoLuong">Theo số lượng</option><option value="TuNhap">Nhập thủ công</option></select>
+                    <label for="DonViTinh">Đơn vị tính</label><input id="DonViTinh" name="DonViTinh" class="form-control" maxlength="50" placeholder="kWh, m³, người..." />
+                    <label for="MoTaDichVu">Mô tả</label><textarea id="MoTaDichVu" name="MoTa" class="form-control" maxlength="500" rows="2"></textarea>
+                    <div class="rc-modal-actions"><button type="button" class="btn rc-btn-secondary" data-dismiss="modal">Hủy</button><button class="btn rc-btn-primary" type="submit">Thêm dịch vụ</button></div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="notificationsModal" tabindex="-1" role="dialog" aria-labelledby="notificationsTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">CẬP NHẬT</span><h2 id="notificationsTitle" class="modal-title">Thông báo</h2><p>@Model.SoThongBaoChuaDoc thông báo chưa đọc</p></div>
+            <div class="modal-body">
+                @if (Model.ThongBao.Count == 0)
+                {
+                    <div class="rc-empty-state"><strong>Chưa có thông báo</strong><span>Các cập nhật gửi đến tài khoản sẽ xuất hiện ở đây.</span></div>
+                }
+                else
+                {
+                    <div class="rc-notification-list">
+                        @foreach (var recipient in Model.ThongBao)
+                        {
+                            <article class="rc-notification-item @(recipient.DaDoc ? "" : "is-unread")">
+                                <div><strong>@recipient.ThongBao.TieuDe</strong><p>@recipient.ThongBao.NoiDung</p><small>@recipient.ThongBao.NgayTao.ToString("dd/MM/yyyy HH:mm")</small></div>
+                                @if (!recipient.DaDoc)
+                                {
+                                    using (Html.BeginRouteForm("OwnerMarkNotificationRead", new { id = recipient.Id }, FormMethod.Post, new { @class = "rc-inline-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button class="rc-text-button" type="submit">Đã đọc</button>
+                                    }
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+            </div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="residentDetailsModal" tabindex="-1" role="dialog" aria-labelledby="residentDetailsTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">HỒ SƠ CƯ DÂN</span><h2 id="residentDetailsTitle" class="modal-title">Chi tiết cư dân</h2></div>
+            <div class="modal-body"><dl class="rc-detail-list"><dt>Họ tên</dt><dd id="detailResidentName"></dd><dt>Số điện thoại</dt><dd id="detailResidentPhone"></dd><dt>Email</dt><dd id="detailResidentEmail"></dd><dt>CCCD</dt><dd id="detailResidentId"></dd><dt>Địa chỉ thường trú</dt><dd id="detailResidentAddress"></dd><dt>Phòng hiện tại</dt><dd id="detailResidentRoom"></dd></dl></div>
+        </div></div>
+    </div>
+
+    <div class="modal fade rc-modal" id="contractDetailsModal" tabindex="-1" role="dialog" aria-labelledby="contractDetailsTitle">
+        <div class="modal-dialog" role="document"><div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button><span class="rc-eyebrow">HỒ SƠ THUÊ PHÒNG</span><h2 id="contractDetailsTitle" class="modal-title">Chi tiết hợp đồng</h2></div>
+            <div class="modal-body"><dl class="rc-detail-list"><dt>Mã hợp đồng</dt><dd id="detailContractCode"></dd><dt>Người đại diện</dt><dd id="detailContractResident"></dd><dt>Phòng / khu trọ</dt><dd id="detailContractRoom"></dd><dt>Thời hạn</dt><dd id="detailContractTerm"></dd><dt>Giá thuê</dt><dd id="detailContractRent"></dd><dt>Tiền cọc</dt><dd id="detailContractDeposit"></dd><dt>Ngày thanh toán</dt><dd id="detailContractPayment"></dd><dt>Thành viên đang hoạt động</dt><dd id="detailContractMembers"></dd><dt>Điều khoản bổ sung</dt><dd id="detailContractTerms"></dd></dl></div>
+        </div></div>
+    </div>
+
+    <script src="@Url.Content("~/Scripts/jquery-3.4.1.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+    <script>
+        (function ($) {
+            var $sidebar = $("#ownerSidebar");
+            function showPanel(name) {
+                $(".rc-workspace-panel").removeClass("is-active");
+                $("#panel-" + name).addClass("is-active");
+                $(".rc-sidebar-nav button").removeClass("is-active");
+                $('.rc-sidebar-nav button[data-panel-target="' + name + '"]').addClass("is-active");
+                $sidebar.removeClass("is-open");
+                $("#sidebarBackdrop").removeClass("is-visible");
+                window.scrollTo(0, 0);
+            }
+
+            $("[data-panel-target]").on("click", function () {
+                var name = $(this).data("panel-target");
+                if ($("#panel-" + name).length) {
+                    showPanel(name);
+                }
+            });
+
+            $("#sidebarToggle, #sidebarBackdrop").on("click", function () {
+                $sidebar.toggleClass("is-open");
+                $("#sidebarBackdrop").toggleClass("is-visible");
+            });
+
+            function filterChildren($source, $target, attribute) {
+                var selected = $source.val();
+                $target.val("");
+                $target.find("option").each(function () {
+                    var $option = $(this);
+                    var parent = $option.data(attribute);
+                    $option.prop("hidden", !!parent && String(parent) !== String(selected));
+                });
+            }
+
+            $("#FloorKhuTroId").on("change", function () {
+                filterChildren($(this), $("#FloorDayTroId"), "khu");
+            });
+            $("#RoomKhuTroId").on("change", function () {
+                filterChildren($(this), $("#RoomDayTroId"), "khu");
+                filterChildren($("#RoomDayTroId"), $("#TangId"), "day");
+            });
+            $("#RoomDayTroId").on("change", function () {
+                filterChildren($(this), $("#TangId"), "day");
+            });
+
+            $("#assignEmployeeModal").on("show.bs.modal", function (event) {
+                var button = $(event.relatedTarget);
+                $("#AssignNhanVienId").val(button.data("employee-id") || "");
+                $("#assignEmployeeDescription").text(button.data("employee-name")
+                    ? "Phân công " + button.data("employee-name") + " phụ trách khu trọ."
+                    : "Chọn nhân viên, khu trọ và ngày bắt đầu phụ trách.");
+                if (button.data("employee-id")) {
+                    $("#AssignNhanVienId").val(button.data("employee-id"));
+                }
+            });
+
+            $("#addMemberModal").on("show.bs.modal", function (event) {
+                var button = $(event.relatedTarget);
+                $("#MemberHopDongId").val(button.data("contract-id") || "");
+                $("#addMemberDescription").text(button.data("room-name")
+                    ? "Chọn cư dân đủ điều kiện để thêm vào phòng " + button.data("room-name") + "."
+                    : "Chọn hồ sơ cư dân chưa có hợp đồng đang hiệu lực.");
+            });
+
+            $("#residentDetailsModal").on("show.bs.modal", function (event) {
+                var button = $(event.relatedTarget);
+                $("#detailResidentName").text(button.data("name"));
+                $("#detailResidentPhone").text(button.data("phone"));
+                $("#detailResidentEmail").text(button.data("email"));
+                $("#detailResidentId").text(button.data("id"));
+                $("#detailResidentAddress").text(button.data("address"));
+                $("#detailResidentRoom").text(button.data("room"));
+            });
+
+            $("#contractDetailsModal").on("show.bs.modal", function (event) {
+                var button = $(event.relatedTarget);
+                $("#detailContractCode").text(button.data("code"));
+                $("#detailContractResident").text(button.data("resident"));
+                $("#detailContractRoom").text(button.data("room") + " · " + button.data("location"));
+                $("#detailContractTerm").text(button.data("start") + " – " + button.data("end"));
+                $("#detailContractRent").text(button.data("rent"));
+                $("#detailContractDeposit").text(button.data("deposit"));
+                $("#detailContractPayment").text("Ngày " + button.data("payment") + " hàng tháng");
+                $("#detailContractMembers").text(button.data("members") || "Chưa có thành viên");
+                $("#detailContractTerms").text(button.data("terms"));
+            });
+        })(jQuery);
+    </script>
+</body>
+</html>

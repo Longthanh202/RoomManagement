@@ -1,0 +1,74 @@
+﻿@model Web.Models.ViewModel.PortalDashboardViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Không gian của tôi | RoomCare";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c35" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
+</head>
+<body class="rc-dashboard">
+    <header class="rc-topbar">
+        <a class="rc-brand" href="@Url.Action("Portal", "Account")">
+            <span class="rc-brand-mark" aria-hidden="true">R</span>
+            <span>Room<span>Care</span></span>
+        </a>
+        <div class="rc-user-menu">
+            <span class="rc-user-avatar" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.HoTen) ? "U" : Model.HoTen.Substring(0, 1).ToUpper())</span>
+            <span class="rc-user-name">@Model.HoTen</span>
+            @using (Html.BeginRouteForm("Logout", new { }, FormMethod.Post, new { @class = "rc-logout-form" }))
+            {
+                @Html.AntiForgeryToken()
+                <button class="rc-logout" type="submit">Đăng xuất</button>
+            }
+        </div>
+    </header>
+    <main class="rc-dashboard-main rc-portal-main">
+        @if (Model.YeuCauDoiMatKhau)
+        {
+            <div class="rc-alert rc-alert-error" role="status">Tài khoản đang sử dụng mật khẩu tạm thời. Vui lòng liên hệ chủ trọ để được hỗ trợ đổi mật khẩu.</div>
+        }
+        <section class="rc-portal-card">
+            <span class="rc-eyebrow">KHÔNG GIAN THÀNH VIÊN ROOMCARE</span>
+            <h1>Xin chào, @Model.HoTen</h1>
+            <p class="rc-portal-role">@(Model.LoaiTaiKhoan == "NhanVien" ? "Nhân viên" : "Cư dân")@(string.IsNullOrWhiteSpace(Model.VaiTro) ? "" : " · " + Model.VaiTro)</p>
+            @if (Model.LoaiTaiKhoan == "CuDan")
+            {
+                if (!string.IsNullOrWhiteSpace(Model.TenPhong))
+                {
+                    <div class="rc-portal-location">
+                        <span class="rc-stat-icon rc-icon-green" aria-hidden="true">⌂</span>
+                        <div>
+                            <strong>Phòng @Model.TenPhong</strong>
+                            <span>@Model.TenKhuTro · @Model.TenDayTro</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="rc-portal-note">Chưa có hợp đồng cư trú đang hiệu lực được liên kết với tài khoản này.</p>
+                }
+            }
+            else
+            {
+                <div class="rc-portal-location">
+                    <span class="rc-stat-icon rc-icon-blue" aria-hidden="true">♙</span>
+                    <div>
+                        <strong>Khu trọ phụ trách</strong>
+                        <span>@(string.IsNullOrWhiteSpace(Model.KhuTroPhuTrach) ? "Chưa được phân công" : Model.KhuTroPhuTrach)</span>
+                    </div>
+                </div>
+                <p class="rc-portal-note">Liên hệ chủ trọ để được hỗ trợ nếu thông tin phân công chưa chính xác.</p>
+            }
+            <p class="rc-portal-account">Tên đăng nhập: <strong>@Model.TenDangNhap</strong></p>
+        </section>
+        <footer class="rc-footer">© @DateTime.Today.Year RoomCare <span>·</span> Chăm sóc nơi an cư</footer>
+    </main>
+</body>
+</html>

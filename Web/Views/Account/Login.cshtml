@@ -1,0 +1,72 @@
+﻿@model Web.Models.ViewModel.LoginViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Đăng nhập | RoomCare";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c35" />
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/roomcare.css")" rel="stylesheet" />
+</head>
+<body class="rc-auth-page">
+    <main class="rc-auth-shell">
+        <section class="rc-auth-story">
+            <a class="rc-brand rc-brand-light" href="@Url.Action("Login", "Account")">
+                <span class="rc-brand-mark" aria-hidden="true">R</span>
+                <span>Room<span>Care</span></span>
+            </a>
+            <div class="rc-story-copy">
+                <span class="rc-eyebrow">MỌI THỨ VỀ NHÀ TRỌ, TRONG TẦM TAY</span>
+                <h1>Không gian tốt<br />bắt đầu từ sự an tâm.</h1>
+                <p>RoomCare đồng hành cùng bạn trong từng công việc quản lý mỗi ngày.</p>
+            </div>
+            <div class="rc-story-footer">RoomCare · Chăm sóc nơi an cư</div>
+        </section>
+        <section class="rc-auth-content">
+            <div class="rc-auth-card rc-login-card">
+                <div class="rc-mobile-brand">
+                    <a class="rc-brand" href="@Url.Action("Login", "Account")">
+                        <span class="rc-brand-mark" aria-hidden="true">R</span>
+                        <span>Room<span>Care</span></span>
+                    </a>
+                </div>
+                <div class="rc-form-heading">
+                    <span class="rc-eyebrow">CHÀO MỪNG TRỞ LẠI</span>
+                    <h2>Đăng nhập RoomCare</h2>
+                    <p>Dùng tài khoản chủ trọ, nhân viên hoặc cư dân để tiếp tục.</p>
+                </div>
+                @if (TempData["Success"] != null)
+                {
+                    <div class="rc-alert rc-alert-success">@TempData["Success"]</div>
+                }
+                @using (Html.BeginRouteForm("Login", new { }, FormMethod.Post, new { @class = "rc-form", autocomplete = "on" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(x => x.ReturnUrl)
+                    @Html.ValidationSummary(true, "", new { @class = "rc-validation-summary" })
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.TenDangNhap)
+                        @Html.TextBoxFor(x => x.TenDangNhap, new { @class = "form-control", autocomplete = "username", placeholder = "Tên đăng nhập", autofocus = "autofocus" })
+                        @Html.ValidationMessageFor(x => x.TenDangNhap, "", new { @class = "field-validation-error" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.MatKhau)
+                        @Html.PasswordFor(x => x.MatKhau, new { @class = "form-control", autocomplete = "current-password", placeholder = "Mật khẩu" })
+                        @Html.ValidationMessageFor(x => x.MatKhau, "", new { @class = "field-validation-error" })
+                    </div>
+                    <button class="btn rc-btn-primary rc-btn-block" type="submit">Đăng nhập <span aria-hidden="true">→</span></button>
+                    <p class="rc-auth-switch">Chưa có tài khoản? <a href="@Url.Action("RegisterOwner", "Account")">Đăng ký chủ trọ</a></p>
+                }
+            </div>
+        </section>
+    </main>
+    <script src="@Url.Content("~/Scripts/jquery-3.4.1.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")"></script>
+</body>
+</html>

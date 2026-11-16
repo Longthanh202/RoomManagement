@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="QuanLyPhongTroModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="QuanLyPhongTroModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="BanGiaoThietBi">
           <Key>
             <PropertyRef Name="Id" />
@@ -481,6 +481,7 @@
           <Property Name="TrangThai" Type="bit" Nullable="false" />
           <Property Name="LanDangNhapCuoi" Type="datetime2" Precision="7" />
           <Property Name="NgayTao" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="YeuCauDoiMatKhau" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="TaiKhoanVaiTro">
           <Key>
@@ -1879,8 +1880,7 @@
             <End Role="YeuCauSuaChua" EntitySet="YeuCauSuaChua" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="QuanLyPhongTroModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -2483,6 +2483,7 @@
           <NavigationProperty Name="TaiKhoanVaiTro" Relationship="Self.FK_TKVT_TaiKhoan" FromRole="TaiKhoan" ToRole="TaiKhoanVaiTro" />
           <NavigationProperty Name="ThanhToan" Relationship="Self.FK_ThanhToan_TaiKhoan" FromRole="TaiKhoan" ToRole="ThanhToan" />
           <NavigationProperty Name="ThongBao" Relationship="Self.FK_ThongBao_TaiKhoan" FromRole="TaiKhoan" ToRole="ThongBao" />
+          <Property Name="YeuCauDoiMatKhau" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="TaiKhoanVaiTro">
           <Key>
@@ -4418,6 +4419,7 @@
           <EntitySetMapping Name="TaiKhoan">
             <EntityTypeMapping TypeName="QuanLyPhongTroModel.TaiKhoan">
               <MappingFragment StoreEntitySet="TaiKhoan">
+                <ScalarProperty Name="YeuCauDoiMatKhau" ColumnName="YeuCauDoiMatKhau" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="TenDangNhap" ColumnName="TenDangNhap" />
                 <ScalarProperty Name="MatKhauHash" ColumnName="MatKhauHash" />

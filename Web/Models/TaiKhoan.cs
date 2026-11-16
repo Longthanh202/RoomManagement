@@ -38,6 +38,7 @@ namespace Web.Models
         public bool TrangThai { get; set; }
         public Nullable<System.DateTime> LanDangNhapCuoi { get; set; }
         public System.DateTime NgayTao { get; set; }
+        public bool YeuCauDoiMatKhau { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CuDan> CuDan { get; set; }
