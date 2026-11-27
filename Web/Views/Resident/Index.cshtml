@@ -196,16 +196,16 @@
 
                 <section class="rc-surface rc-member-section rc-workspace-panel" id="panel-services">
                     <div class="rc-section-heading"><div><span class="rc-eyebrow">TIỆN ÍCH PHÒNG</span><h2>Dịch vụ đang áp dụng</h2></div></div>
-                    @if (Model.BangGiaDichVu.Count == 0)
+                    @if (Model.DichVuGia.Count == 0)
                     {
                         <div class="rc-empty-state"><strong>Chưa có dịch vụ được ghi nhận</strong><span>Liên hệ chủ trọ nếu bạn cần thêm thông tin.</span></div>
                     }
                     else
                     {
                         <div class="rc-member-service-grid">
-                            @foreach (var service in Model.BangGiaDichVu)
+                            @foreach (var service in Model.DichVuGia)
                             {
-                                <article><span class="rc-stat-icon rc-icon-green">◇</span><div><strong>@service.DichVu.TenDichVu</strong><span>@service.KhuTro.TenKhuTro · @service.DichVu.LoaiTinhPhi · @service.DichVu.DonViTinh</span></div><b>@service.DonGia.ToString("N0") ₫</b></article>
+                                <article><span class="rc-stat-icon rc-icon-green">◇</span><div><strong>@service.TenDichVu</strong><span>@service.TenKhuTro · Phòng @service.MaPhong · @service.LoaiTinhPhi · @service.DonViTinh @(service.LaGiaRiengPhong ? "· Giá riêng phòng" : "")</span></div><b>@service.DonGia.ToString("N0") ₫</b></article>
                             }
                         </div>
                     }

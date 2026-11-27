@@ -64,10 +64,79 @@ namespace Web.Repositories.ResidentRepository
                 .OrderByDescending(x => x.NgayBatDau)
                 .Take(50)
                 .ToList();
-            var propertyIds = currentContracts
+            var currentRoomContracts = currentContracts
+                .GroupBy(x => x.PhongId)
+                .Select(x => x.First())
+                .ToList();
+            var roomIds = currentRoomContracts
+                .Select(x => x.PhongId)
+                .ToList();
+            var propertyIds = currentRoomContracts
                 .Select(x => x.Phong.Tang.DayTro.KhuTroId)
                 .Distinct()
                 .ToList();
+            var roomPrices = _db.DichVuPhong
+                .Include("DichVu")
+                .Where(x =>
+                    roomIds.Contains(x.PhongId) &&
+                    x.TrangThai &&
+                    x.NgayBatDau <= today &&
+                    (!x.NgayKetThuc.HasValue || x.NgayKetThuc >= today) &&
+                    x.DichVu.TrangThai)
+                .ToList();
+            var propertyPrices = _db.BangGiaDichVu
+                .Include("DichVu")
+                .Where(x =>
+                    propertyIds.Contains(x.KhuTroId) &&
+                    x.TrangThai &&
+                    x.TuNgay <= today &&
+                    (!x.DenNgay.HasValue || x.DenNgay >= today) &&
+                    x.DichVu.TrangThai)
+                .ToList();
+            var serviceRates = new System.Collections.Generic.List<ResidentServicePriceViewModel>();
+            foreach (var contract in currentRoomContracts)
+            {
+                var roomOverrides = roomPrices
+                    .Where(x => x.PhongId == contract.PhongId)
+                    .GroupBy(x => x.DichVuId)
+                    .Select(x => x.OrderByDescending(price => price.NgayBatDau).First())
+                    .ToList();
+                foreach (var price in roomOverrides)
+                {
+                    serviceRates.Add(new ResidentServicePriceViewModel
+                    {
+                        TenDichVu = price.DichVu.TenDichVu,
+                        LoaiTinhPhi = price.DichVu.LoaiTinhPhi,
+                        DonViTinh = price.DichVu.DonViTinh,
+                        TenKhuTro = contract.Phong.Tang.DayTro.KhuTro.TenKhuTro,
+                        MaPhong = contract.Phong.MaPhong,
+                        DonGia = price.DonGia,
+                        LaGiaRiengPhong = true
+                    });
+                }
+
+                var overriddenServiceIds = roomOverrides
+                    .Select(x => x.DichVuId)
+                    .ToList();
+                foreach (var price in propertyPrices
+                    .Where(x =>
+                        x.KhuTroId == contract.Phong.Tang.DayTro.KhuTroId &&
+                        !overriddenServiceIds.Contains(x.DichVuId))
+                    .GroupBy(x => x.DichVuId)
+                    .Select(x => x.OrderByDescending(rate => rate.TuNgay).First()))
+                {
+                    serviceRates.Add(new ResidentServicePriceViewModel
+                    {
+                        TenDichVu = price.DichVu.TenDichVu,
+                        LoaiTinhPhi = price.DichVu.LoaiTinhPhi,
+                        DonViTinh = price.DichVu.DonViTinh,
+                        TenKhuTro = contract.Phong.Tang.DayTro.KhuTro.TenKhuTro,
+                        MaPhong = contract.Phong.MaPhong,
+                        DonGia = price.DonGia,
+                        LaGiaRiengPhong = false
+                    });
+                }
+            }
             var currentRoom = currentContracts.FirstOrDefault();
 
             var dashboard = new ResidentDashboardViewModel
@@ -90,16 +159,10 @@ namespace Web.Repositories.ResidentRepository
                     .OrderByDescending(x => x.NgayLap)
                     .Take(50)
                     .ToList(),
-                BangGiaDichVu = _db.BangGiaDichVu
-                    .Include("DichVu")
-                    .Include("KhuTro")
-                    .Where(x =>
-                        propertyIds.Contains(x.KhuTroId) &&
-                        x.TrangThai &&
-                        x.TuNgay <= today &&
-                        (!x.DenNgay.HasValue || x.DenNgay >= today) &&
-                        x.DichVu.TrangThai)
-                    .OrderBy(x => x.DichVu.TenDichVu)
+                DichVuGia = serviceRates
+                    .OrderBy(x => x.TenKhuTro)
+                    .ThenBy(x => x.MaPhong)
+                    .ThenBy(x => x.TenDichVu)
                     .ToList(),
                 YeuCauSuaChua = _db.YeuCauSuaChua
                     .Include("Phong")
