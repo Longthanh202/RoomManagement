@@ -123,7 +123,7 @@ namespace Web.Repositories.TaiKhoanRepository
                 portal.KhuTroPhuTrach = string.Join(", ", _db.PhanCongNhanVien
                     .Where(x =>
                         x.NhanVienId == employee.Id &&
-                        !x.NgayKetThuc.HasValue &&
+                        (!x.NgayKetThuc.HasValue || x.NgayKetThuc >= today) &&
                         x.NgayBatDau <= today &&
                         x.KhuTro.TrangThai)
                     .Select(x => x.KhuTro.TenKhuTro)
