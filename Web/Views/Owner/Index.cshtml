@@ -293,7 +293,7 @@
                                     <tbody>
                                         @foreach (var employee in Model.NhanVien)
                                         {
-                                            var assignments = employee.PhanCongNhanVien.Where(x => !x.NgayKetThuc.HasValue && x.NgayBatDau <= DateTime.Today).ToList();
+                                            var assignments = employee.PhanCongNhanVien.Where(x => x.NgayBatDau <= DateTime.Today && (!x.NgayKetThuc.HasValue || x.NgayKetThuc >= DateTime.Today)).ToList();
                                             <tr>
                                                 <td><strong>@employee.HoTen</strong><small>@employee.MaNhanVien · @employee.SoDienThoai</small></td>
                                                 <td>@(employee.ChucVu ?? "Nhân viên")</td>

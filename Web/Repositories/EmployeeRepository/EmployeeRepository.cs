@@ -239,7 +239,7 @@ namespace Web.Repositories.EmployeeRepository
                 .Where(x =>
                     x.NhanVienId == employeeId &&
                     x.NgayBatDau <= today &&
-                    !x.NgayKetThuc.HasValue &&
+                    (!x.NgayKetThuc.HasValue || x.NgayKetThuc >= today) &&
                     x.KhuTro.TrangThai &&
                     x.KhuTro.ChuTro.TrangThai)
                 .Select(x => x.KhuTroId)
