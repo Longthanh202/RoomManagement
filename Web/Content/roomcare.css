@@ -1137,6 +1137,41 @@ body {
     background: rgba(255, 255, 255, .97);
 }
 
+.rc-loading-bar {
+    position: fixed;
+    z-index: 1100;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease;
+}
+
+.rc-loading-bar.is-visible {
+    opacity: 1;
+}
+
+.rc-loading-bar > span:first-child {
+    display: block;
+    width: 40%;
+    height: 100%;
+    transform: translateX(-100%);
+    background: #45a985;
+}
+
+.rc-loading-bar.is-visible > span:first-child {
+    animation: rc-loading-progress 1.1s ease-in-out infinite;
+}
+
+@keyframes rc-loading-progress {
+    to {
+        transform: translateX(260%);
+    }
+}
+
 .rc-mobile-menu {
     display: inline-flex;
     width: 38px;
@@ -1234,6 +1269,22 @@ body {
 
 .rc-workspace-panel.is-active {
     display: block;
+}
+
+.rc-workspace-panel.is-entering {
+    animation: rc-panel-enter .2s ease-out both;
+}
+
+@keyframes rc-panel-enter {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .rc-page-heading {
@@ -2234,6 +2285,32 @@ body {
     margin-top: 4px;
 }
 
+.rc-member-update-form .btn[aria-busy="true"],
+.rc-inline-form button[aria-busy="true"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: .8;
+}
+
+.rc-member-update-form .btn[aria-busy="true"]::before,
+.rc-inline-form button[aria-busy="true"]::before {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    content: "";
+    animation: rc-loading-spin .7s linear infinite;
+}
+
+@keyframes rc-loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .rc-member-form-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -2341,5 +2418,24 @@ body {
     .rc-member-work-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rc-sidebar,
+    .rc-loading-bar {
+        transition: none;
+    }
+
+    .rc-workspace-panel.is-entering,
+    .rc-loading-bar.is-visible > span:first-child,
+    .rc-member-update-form .btn[aria-busy="true"]::before,
+    .rc-inline-form button[aria-busy="true"]::before {
+        animation: none;
+    }
+
+    .rc-loading-bar.is-visible > span:first-child {
+        width: 100%;
+        transform: none;
     }
 }
