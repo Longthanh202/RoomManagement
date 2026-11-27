@@ -1,6 +1,6 @@
 ﻿/*
 ===============================================================================
-DATABASE: QuanLyPhongTro
+DATABASE: RoomRentalManagement
 HE QUAN TRI: Microsoft SQL Server
 QUY UOC:
 - Ten database, bang, cot, constraint: tieng Viet khong dau.
@@ -11,10 +11,10 @@ QUY UOC:
 ===============================================================================
 */
 
-IF DB_ID(N'QuanLyPhongTro') IS NULL
-    CREATE DATABASE QuanLyPhongTro;
+IF DB_ID(N'RoomRentalManagement') IS NULL
+    CREATE DATABASE RoomRentalManagement;
 GO
-USE QuanLyPhongTro;
+USE RoomRentalManagement;
 GO
 
 /* ============================================================================
@@ -109,6 +109,7 @@ CREATE TABLE dbo.TaiKhoan (
     TrangThai BIT NOT NULL CONSTRAINT DF_TaiKhoan_TrangThai DEFAULT 1,
     LanDangNhapCuoi DATETIME2 NULL,               -- Lan dang nhap gan nhat
     NgayTao DATETIME2 NOT NULL CONSTRAINT DF_TaiKhoan_NgayTao DEFAULT SYSDATETIME(),
+    YeuCauDoiMatKhau BIT NOT NULL CONSTRAINT DF_TaiKhoan_YeuCauDoiMatKhau DEFAULT 0,
     CONSTRAINT UQ_TaiKhoan_TenDangNhap UNIQUE (TenDangNhap),
     CONSTRAINT CK_TaiKhoan_Loai CHECK (LoaiTaiKhoan IN ('ChuTro','NhanVien','CuDan'))
 );

@@ -361,6 +361,7 @@
     <Content Include="Content\roomcare-member-responsive.css" />
     <Content Include="Documents\mermaid-diagram.png" />
     <Content Include="Documents\QuanLyPhongTro_SQLServer.sql" />
+    <Content Include="Documents\insert-role.sql" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />

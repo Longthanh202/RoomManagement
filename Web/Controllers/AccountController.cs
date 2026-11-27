@@ -222,6 +222,11 @@ namespace Web.Controllers
                 return RedirectToAction("Login");
             }
 
+            if (portal.YeuCauDoiMatKhau)
+            {
+                return RedirectToAction("ChangePassword");
+            }
+
             if (!_taiKhoanService.MarkNotificationRead(User.Identity.Name, id))
             {
                 TempData["Error"] = "Không tìm thấy thông báo trong tài khoản này.";
@@ -262,6 +267,25 @@ namespace Web.Controllers
         [Authorize]
         public ActionResult ChangePassword()
         {
+            var portal = _taiKhoanService.GetPortal(User.Identity.Name);
+            if (portal == null)
+            {
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login");
+            }
+
+            if (portal.LoaiTaiKhoan == "ChuTro")
+            {
+                return RedirectToAction("Index", "Owner");
+            }
+
+            if (portal.LoaiTaiKhoan != "NhanVien" &&
+                portal.LoaiTaiKhoan != "CuDan")
+            {
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login");
+            }
+
             return View();
         }
 
@@ -270,6 +294,25 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ChangePassword(ChangePasswordViewModel model)
         {
+            var portal = _taiKhoanService.GetPortal(User.Identity.Name);
+            if (portal == null)
+            {
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login");
+            }
+
+            if (portal.LoaiTaiKhoan == "ChuTro")
+            {
+                return RedirectToAction("Index", "Owner");
+            }
+
+            if (portal.LoaiTaiKhoan != "NhanVien" &&
+                portal.LoaiTaiKhoan != "CuDan")
+            {
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
