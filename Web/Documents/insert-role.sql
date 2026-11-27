@@ -1,6 +1,9 @@
-ALTER TABLE dbo.TaiKhoan
-ADD YeuCauDoiMatKhau BIT NOT NULL
-    CONSTRAINT DF_TaiKhoan_YeuCauDoiMatKhau DEFAULT 1;
+IF COL_LENGTH('dbo.TaiKhoan', 'YeuCauDoiMatKhau') IS NULL
+BEGIN
+    ALTER TABLE dbo.TaiKhoan
+    ADD YeuCauDoiMatKhau BIT NOT NULL
+        CONSTRAINT DF_TaiKhoan_YeuCauDoiMatKhau DEFAULT 1;
+END
 GO
 
 

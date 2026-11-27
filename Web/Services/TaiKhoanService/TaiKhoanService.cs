@@ -194,8 +194,12 @@ namespace Web.Services.TaiKhoanService
         {
             var account = _repository.GetActiveAccount(username);
 
-            if (account == null)
+            if (account == null ||
+                (account.LoaiTaiKhoan != "NhanVien" &&
+                 account.LoaiTaiKhoan != "CuDan"))
+            {
                 return false;
+            }
 
             if (!PasswordHasher.Verify(oldPassword, account.MatKhauHash))
                 return false;

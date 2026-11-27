@@ -2,6 +2,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using Web.Models.ViewModel;
 using Web.Services.ResidentService;
+using Web.Services.TaiKhoanService;
 
 namespace Web.Controllers
 {
@@ -9,15 +10,25 @@ namespace Web.Controllers
     public class ResidentController : Controller
     {
         private readonly IResidentService _residentService;
+        private readonly ITaiKhoanService _taiKhoanService;
 
-        public ResidentController(IResidentService residentService)
+        public ResidentController(
+            IResidentService residentService,
+            ITaiKhoanService taiKhoanService)
         {
             _residentService = residentService;
+            _taiKhoanService = taiKhoanService;
         }
 
         [HttpGet]
         public ActionResult Index()
         {
+            var passwordRedirect = GetPasswordChangeRedirect();
+            if (passwordRedirect != null)
+            {
+                return passwordRedirect;
+            }
+
             var model = _residentService.GetDashboard(User.Identity.Name);
             if (model == null)
             {
@@ -32,6 +43,12 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CreateRepairRequest(CreateRepairRequestViewModel request)
         {
+            var passwordRedirect = GetPasswordChangeRedirect();
+            if (passwordRedirect != null)
+            {
+                return passwordRedirect;
+            }
+
             if (!ModelState.IsValid)
             {
                 return ReturnDashboardWithValidationErrors();
@@ -54,6 +71,12 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult RegisterGuest(RegisterGuestViewModel guest)
         {
+            var passwordRedirect = GetPasswordChangeRedirect();
+            if (passwordRedirect != null)
+            {
+                return passwordRedirect;
+            }
+
             if (!ModelState.IsValid)
             {
                 return ReturnDashboardWithValidationErrors();
@@ -82,6 +105,20 @@ namespace Web.Controllers
             }
 
             return View("Index", dashboard);
+        }
+
+        private ActionResult GetPasswordChangeRedirect()
+        {
+            var portal = _taiKhoanService.GetPortal(User.Identity.Name);
+            if (portal == null || portal.LoaiTaiKhoan != "CuDan")
+            {
+                FormsAuthentication.SignOut();
+                return RedirectToAction("Login", "Account");
+            }
+
+            return portal.YeuCauDoiMatKhau
+                ? (ActionResult)RedirectToAction("ChangePassword", "Account")
+                : null;
         }
     }
 }
