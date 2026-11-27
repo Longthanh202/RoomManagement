@@ -12,7 +12,7 @@ namespace Web.Models.ViewModel
             HopDong = new List<HopDong>();
             LichSuCuTru = new List<LichSuCuTru>();
             HoaDon = new List<HoaDon>();
-            BangGiaDichVu = new List<BangGiaDichVu>();
+            DichVuGia = new List<ResidentServicePriceViewModel>();
             YeuCauSuaChua = new List<YeuCauSuaChua>();
             DangKyKhach = new List<DangKyKhach>();
             ThongBao = new List<NguoiNhanThongBao>();
@@ -29,10 +29,21 @@ namespace Web.Models.ViewModel
         public IList<HopDong> HopDong { get; set; }
         public IList<LichSuCuTru> LichSuCuTru { get; set; }
         public IList<HoaDon> HoaDon { get; set; }
-        public IList<BangGiaDichVu> BangGiaDichVu { get; set; }
+        public IList<ResidentServicePriceViewModel> DichVuGia { get; set; }
         public IList<YeuCauSuaChua> YeuCauSuaChua { get; set; }
         public IList<DangKyKhach> DangKyKhach { get; set; }
         public IList<NguoiNhanThongBao> ThongBao { get; set; }
+    }
+
+    public class ResidentServicePriceViewModel
+    {
+        public string TenDichVu { get; set; }
+        public string LoaiTinhPhi { get; set; }
+        public string DonViTinh { get; set; }
+        public string TenKhuTro { get; set; }
+        public string MaPhong { get; set; }
+        public decimal DonGia { get; set; }
+        public bool LaGiaRiengPhong { get; set; }
     }
 
     public class CreateRepairRequestViewModel
