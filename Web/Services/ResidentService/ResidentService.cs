@@ -49,8 +49,8 @@ namespace Web.Services.ResidentService
 
             if (!model.ThoiGianDuKienDen.HasValue ||
                 !model.ThoiGianDuKienVe.HasValue ||
-                model.ThoiGianDuKienDen.Value < DateTime.Now ||
-                model.ThoiGianDuKienVe.Value <= model.ThoiGianDuKienDen.Value)
+                model.ThoiGianDuKienDen.Value.Date < DateTime.Today ||
+                model.ThoiGianDuKienVe.Value.Date < model.ThoiGianDuKienDen.Value.Date)
             {
                 return "Thời gian khách đến và rời đi không hợp lệ.";
             }
